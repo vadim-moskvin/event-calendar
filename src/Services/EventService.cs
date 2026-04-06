@@ -25,8 +25,8 @@ public class EventService : IEventService
     {
         if (!_events.TryGetValue(@event.Id, out var original))
             return false;
-
-        original.Update(@event.Title, @event.Description, @event.StartAt, @event.EndAt);
+        
+        _events[@event.Id] = @event;
         return true;
     }
 
