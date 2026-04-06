@@ -16,22 +16,18 @@ public class EventService : IEventService
         return _events.GetValueOrDefault(id);
     }
 
-    public void AddEvent(Event @event)
+    public bool AddEvent(Event @event)
     {
-        if (!_events.TryAdd(@event.Id, @event))
-            throw new EventAlreadyExistsException(@event.Id);
+        return _events.TryAdd(@event.Id, @event);
     }
 
-    public CreateOrUpdateResult<Event> ChangeEvent(Event @event)
+    public bool ChangeEvent(Event @event)
     {
         if (!_events.TryGetValue(@event.Id, out var original))
-            return new CreateOrUpdateResult<Event>(@event, true);
+            return false;
 
-        original.Title = @event.Title;
-        original.Description = @event.Description;
-        original.StartAt = @event.StartAt;
-        original.EndAt = @event.EndAt;
-        return new CreateOrUpdateResult<Event>(original, false);
+        original.Update(@event.Title, @event.Description, @event.StartAt, @event.EndAt);
+        return true;
     }
 
     public bool RemoveEvent(Guid id)
