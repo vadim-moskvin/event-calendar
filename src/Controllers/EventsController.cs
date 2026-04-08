@@ -8,7 +8,7 @@ namespace EventCalendar.Controllers;
 /// Позволяет управлять событиями
 /// </summary>
 [ApiController]
-[Route("api/[controller]")]
+[Route("[controller]")]
 public class EventsController(IEventService eventService) : ControllerBase
 {
     private const string EventNotFoundTitle = "Событие не найдено";
@@ -50,10 +50,10 @@ public class EventsController(IEventService eventService) : ControllerBase
     /// В случае если событие с указанным идентификатором существует, возвращает ошибку не создавая события.
     /// </summary>
     /// <param name="eventDto">Событие в виде Json-объекта</param>
-    /// <response code="200">Событие успешно создано</response>
+    /// <response code="201">Событие успешно создано</response>
     /// <response code="409">Событие не создано, т.к. событие с указанным идентификатором уже существует на сервере.
     /// Требуется предпринять действие на клиенте</response>
-    [ProducesResponseType(typeof(GetEventDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(GetEventDto), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
     [Produces("application/json")]
@@ -61,16 +61,24 @@ public class EventsController(IEventService eventService) : ControllerBase
     [HttpPost]
     public IActionResult Post([FromBody] CreateEventDto eventDto)
     {
+        var @event = eventDto.ToEntity();
+
+        if (eventService.AddEvent(@event))
+            return CreatedAtAction(nameof(GetEvent), new { id = @event.Id }, @event.ToGetEventDto());
+
+        if (eventDto.Id.HasValue) // если событие уже используется на клиенте с созданным офлайн Id
+        {
+            return Conflict(new ProblemDetails
+                { Title = EventAlreadyExistsTitle, Status = StatusCodes.Status409Conflict });
+        }
+
+        // повторяем пока не сгенерируем уникальный идентификатор
         while (true)
         {
-            var @event = eventDto.ToEntity();
+            @event = eventDto.ToEntity();
 
             if (eventService.AddEvent(@event))
                 return CreatedAtAction(nameof(GetEvent), new { id = @event.Id }, @event.ToGetEventDto());
-
-            if (eventDto.Id.HasValue) // если событие уже используется на клиенте с созданным офлайн Id
-                return Conflict(new ProblemDetails
-                    { Title = EventAlreadyExistsTitle, Status = StatusCodes.Status409Conflict });
         }
     }
 

@@ -4,6 +4,7 @@ public class Event
 {
     public Event(Guid id, string title, DateTime startAt, DateTime endAt, string? description = null)
     {
+        Validate(title);
         Validate(startAt, endAt);
 
         Id = id;
@@ -22,19 +23,6 @@ public class Event
     public DateTime StartAt { get; private set; }
 
     public DateTime EndAt { get; private set; }
-
-    public void Rename(string title)
-    {
-        Validate(StartAt, EndAt);
-        Title = title;
-    }
-
-    public void Reschedule(DateTime startAt, DateTime endAt)
-    {
-        Validate(startAt, endAt);
-        StartAt = startAt;
-        EndAt = endAt;
-    }
 
     public void Update(string title, string? description, DateTime startAt, DateTime endAt)
     {
