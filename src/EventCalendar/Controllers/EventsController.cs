@@ -17,13 +17,17 @@ public class EventsController(IEventService eventService) : ControllerBase
     /// <summary>
     /// Возвращает полный список событий.
     /// </summary>
+    /// <param name="title">Фильтр по названию</param>
+    /// <param name="from">Фильтр по дате начала</param>
+    /// <param name="to">Фильтр по дате окончания</param>
     /// <response code="200">Список событий найден</response>
     [ProducesResponseType(typeof(ActionResult<IEnumerable<GetEventDto>>), StatusCodes.Status200OK)]
     [Produces("application/json")]
     [HttpGet]
-    public ActionResult<IEnumerable<GetEventDto>> GetEvents()
+    public ActionResult<IEnumerable<GetEventDto>> GetEvents([FromQuery] string? title = null,
+        [FromQuery] DateTime? from = null, [FromQuery] DateTime? to = null)
     {
-        return Ok(eventService.GetEvents().Select(Mapper.ToGetEventDto));
+        return Ok(eventService.GetEvents(title, from, to).Select(Mapper.ToGetEventDto));
     }
 
     /// <summary>

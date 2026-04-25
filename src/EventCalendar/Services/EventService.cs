@@ -6,9 +6,19 @@ public class EventService : IEventService
 {
     private readonly Dictionary<Guid, Event> _events = [];
 
-    public IEnumerable<Event> GetEvents()
+    public IEnumerable<Event> GetEvents(string? title = null,
+        DateTime? from = null, DateTime? to = null)
     {
-        return _events.Values.ToArray();
+        var query = _events.Values.AsQueryable();
+
+        if (title != null)
+            query = query.Where(e => e.Title.Contains(title, StringComparison.CurrentCultureIgnoreCase));
+        if (from.HasValue)
+            query = query.Where(e => e.StartAt >= from);
+        if (to.HasValue)
+            query = query.Where(e => e.EndAt <= to);
+
+        return query.ToArray();
     }
 
     public Event? GetEvent(Guid id)
@@ -25,7 +35,7 @@ public class EventService : IEventService
     {
         if (!_events.ContainsKey(@event.Id))
             return false;
-        
+
         _events[@event.Id] = @event;
         return true;
     }
