@@ -4,8 +4,8 @@ namespace EventCalendar.Services;
 
 public interface IEventService
 {
-    IEnumerable<Event> GetEvents(string? title = null,
-        DateTime? from = null, DateTime? to = null);
+    PaginatedResult<Event> GetEvents(string? title, DateTime? from, DateTime? to, int page,
+        int pageSize);
 
     Event? GetEvent(Guid id);
     bool AddEvent(Event @event);

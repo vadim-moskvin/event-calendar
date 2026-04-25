@@ -4,6 +4,12 @@ namespace EventCalendar.Controllers.Dtos;
 
 public static class Mapper
 {
+    public static PaginatedResult<GetEventDto> ToGetEventDto(this PaginatedResult<Event> result)
+    {
+        return new PaginatedResult<GetEventDto>(result.Items.Select(x => x.ToGetEventDto()), result.CurrentPage,
+            result.TotalPages, result.TotalItems);
+    }
+
     public static GetEventDto ToGetEventDto(this Event @event)
     {
         return new GetEventDto

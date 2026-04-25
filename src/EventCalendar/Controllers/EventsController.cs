@@ -11,6 +11,7 @@ namespace EventCalendar.Controllers;
 [Route("[controller]")]
 public class EventsController(IEventService eventService) : ControllerBase
 {
+    private const string IncorrectRequestTitle = "Некорректный запрос";
     private const string EventNotFoundTitle = "Событие не найдено";
     private const string EventAlreadyExistsTitle = "Событие с таким идентификатором уже существует";
 
@@ -20,14 +21,27 @@ public class EventsController(IEventService eventService) : ControllerBase
     /// <param name="title">Фильтр по названию</param>
     /// <param name="from">Фильтр по дате начала</param>
     /// <param name="to">Фильтр по дате окончания</param>
+    /// <param name="page">Страница, которую необходимо вернуть</param>
+    /// <param name="pageSize">Количество элементов на странице</param>
     /// <response code="200">Список событий найден</response>
+    /// <response code="400">Некорректный запрос</response>
     [ProducesResponseType(typeof(ActionResult<IEnumerable<GetEventDto>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [Produces("application/json")]
     [HttpGet]
-    public ActionResult<IEnumerable<GetEventDto>> GetEvents([FromQuery] string? title = null,
-        [FromQuery] DateTime? from = null, [FromQuery] DateTime? to = null)
+    public ActionResult<IEnumerable<GetEventDto>> GetEvents([FromQuery] string? title, [FromQuery] DateTime? from,
+        [FromQuery] DateTime? to, [FromQuery] int page = EventService.DefaultPage,
+        [FromQuery] int pageSize = EventService.DefaultPageSize)
     {
-        return Ok(eventService.GetEvents(title, from, to).Select(Mapper.ToGetEventDto));
+        try
+        {
+            return Ok(eventService.GetEvents(title, from, to, page, pageSize).ToGetEventDto());
+        }
+        catch (ArgumentOutOfRangeException e)
+        {
+            return BadRequest(new ProblemDetails
+                { Title = IncorrectRequestTitle, Detail = e.Message, Status = StatusCodes.Status400BadRequest });
+        }
     }
 
     /// <summary>
