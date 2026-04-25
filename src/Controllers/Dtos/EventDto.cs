@@ -9,15 +9,27 @@ public record EventDto : IValidatableObject
 
     public string? Description { get; init; }
 
-    [Required(ErrorMessage = "Дата и время начала события являются обязательными.")]
     public DateTime StartAt { get; init; }
 
-    [Required(ErrorMessage = "Дата и время конца события являются обязательными.")]
     public DateTime EndAt { get; init; }
 
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
-        if (StartAt >= EndAt)
+        if (StartAt == default)
+        {
+            yield return new ValidationResult(
+                "Дата и время начала события является обязательным.",
+                [nameof(StartAt)]);
+        }
+
+        if (EndAt == default)
+        {
+            yield return new ValidationResult(
+                "Дата и время конца события является обязательным.",
+                [nameof(EndAt)]);
+        }
+
+        if (StartAt != default && EndAt != default && StartAt >= EndAt)
         {
             yield return new ValidationResult(
                 "Дата и время начала должны быть меньше даты и времени конца.",

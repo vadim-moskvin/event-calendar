@@ -63,23 +63,19 @@ public class EventsController(IEventService eventService) : ControllerBase
     {
         var @event = eventDto.ToEntity();
 
-        if (eventService.AddEvent(@event))
-            return CreatedAtAction(nameof(GetEvent), new { id = @event.Id }, @event.ToGetEventDto());
-
-        if (eventDto.Id.HasValue) // если событие уже используется на клиенте с созданным офлайн Id
+        while (!eventService.AddEvent(@event))
         {
-            return Conflict(new ProblemDetails
-                { Title = EventAlreadyExistsTitle, Status = StatusCodes.Status409Conflict });
-        }
+            if (eventDto.Id.HasValue) // если событие уже используется на клиенте с созданным офлайн Id
+            {
+                return Conflict(new ProblemDetails
+                    { Title = EventAlreadyExistsTitle, Status = StatusCodes.Status409Conflict });
+            }
 
-        // повторяем пока не сгенерируем уникальный идентификатор
-        while (true)
-        {
+            // повторяем пока не сгенерируем уникальный идентификатор
             @event = eventDto.ToEntity();
-
-            if (eventService.AddEvent(@event))
-                return CreatedAtAction(nameof(GetEvent), new { id = @event.Id }, @event.ToGetEventDto());
         }
+
+        return CreatedAtAction(nameof(GetEvent), new { id = @event.Id }, @event.ToGetEventDto());
     }
 
     /// <summary>

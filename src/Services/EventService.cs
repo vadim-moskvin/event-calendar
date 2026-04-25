@@ -23,7 +23,7 @@ public class EventService : IEventService
 
     public bool ChangeEvent(Event @event)
     {
-        if (!_events.TryGetValue(@event.Id, out var original))
+        if (!_events.ContainsKey(@event.Id))
             return false;
         
         _events[@event.Id] = @event;
