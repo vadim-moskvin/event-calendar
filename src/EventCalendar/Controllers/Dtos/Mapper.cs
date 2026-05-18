@@ -28,9 +28,9 @@ public static class Mapper
             { Description = dto.Description };
     }
 
-    public static Event ToEntity(this CreateEventDto dto)
+    public static Event ToEntity(this EventDto dto)
     {
-        return new Event(dto.Id ?? Guid.NewGuid(), dto.Title, dto.StartAt, dto.EndAt)
+        return new Event(Guid.NewGuid(), dto.Title, dto.StartAt, dto.EndAt)
             { Description = dto.Description };
     }
 }

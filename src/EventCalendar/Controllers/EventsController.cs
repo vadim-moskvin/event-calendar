@@ -11,10 +11,6 @@ namespace EventCalendar.Controllers;
 [Route("[controller]")]
 public class EventsController(IEventService eventService) : ControllerBase
 {
-    private const string IncorrectRequestTitle = "Некорректный запрос";
-    private const string EventNotFoundTitle = "Событие не найдено";
-    private const string EventAlreadyExistsTitle = "Событие с таким идентификатором уже существует";
-
     /// <summary>
     /// Возвращает полный список событий.
     /// </summary>
@@ -33,15 +29,7 @@ public class EventsController(IEventService eventService) : ControllerBase
         [FromQuery] DateTime? to, [FromQuery] int page = EventService.DefaultPage,
         [FromQuery] int pageSize = EventService.DefaultPageSize)
     {
-        try
-        {
-            return Ok(eventService.GetEvents(title, from, to, page, pageSize).ToGetEventDto());
-        }
-        catch (ArgumentOutOfRangeException e)
-        {
-            return BadRequest(new ProblemDetails
-                { Title = IncorrectRequestTitle, Detail = e.Message, Status = StatusCodes.Status400BadRequest });
-        }
+        return Ok(eventService.GetEvents(title, from, to, page, pageSize).ToGetEventDto());
     }
 
     /// <summary>
@@ -57,9 +45,7 @@ public class EventsController(IEventService eventService) : ControllerBase
     public ActionResult<GetEventDto> GetEvent([FromRoute] Guid id)
     {
         var @event = eventService.GetEvent(id);
-        return @event != null
-            ? Ok(@event.ToGetEventDto())
-            : NotFound(new ProblemDetails { Title = EventNotFoundTitle, Status = StatusCodes.Status404NotFound });
+        return Ok(@event.ToGetEventDto());
     }
 
     /// <summary>
@@ -77,18 +63,12 @@ public class EventsController(IEventService eventService) : ControllerBase
     [Produces("application/json")]
     [Consumes("application/json")]
     [HttpPost]
-    public IActionResult Post([FromBody] CreateEventDto eventDto)
+    public IActionResult Post([FromBody] EventDto eventDto)
     {
         var @event = eventDto.ToEntity();
 
         while (!eventService.AddEvent(@event))
         {
-            if (eventDto.Id.HasValue) // если событие уже используется на клиенте с созданным офлайн Id
-            {
-                return Conflict(new ProblemDetails
-                    { Title = EventAlreadyExistsTitle, Status = StatusCodes.Status409Conflict });
-            }
-
             // повторяем пока не сгенерируем уникальный идентификатор
             @event = eventDto.ToEntity();
         }
@@ -112,9 +92,8 @@ public class EventsController(IEventService eventService) : ControllerBase
     public IActionResult Put([FromRoute] Guid id, [FromBody] EventDto eventDto)
     {
         var @event = eventDto.ToEntity(id);
-        return eventService.ChangeEvent(@event)
-            ? Ok()
-            : NotFound(new ProblemDetails { Title = EventNotFoundTitle, Status = StatusCodes.Status404NotFound });
+        eventService.ChangeEvent(@event);
+        return Ok();
     }
 
     /// <summary>
@@ -129,8 +108,7 @@ public class EventsController(IEventService eventService) : ControllerBase
     [HttpDelete("{id:guid}")]
     public IActionResult Delete(Guid id)
     {
-        return eventService.RemoveEvent(id)
-            ? Ok()
-            : NotFound(new ProblemDetails { Title = EventNotFoundTitle, Status = StatusCodes.Status404NotFound });
+        eventService.RemoveEvent(id);
+        return Ok();
     }
 }

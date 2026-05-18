@@ -1,4 +1,5 @@
-﻿using EventCalendar.Models;
+﻿using EventCalendar.Exceptions;
+using EventCalendar.Models;
 using EventCalendar.Services;
 
 namespace EventCalendar.Tests;
@@ -96,11 +97,10 @@ public class EventServiceTests
         service.AddEvent(newEvent);
 
         // Act
-        var result = service.ChangeEvent(newEvent2);
+        service.ChangeEvent(newEvent2);
 
         // Assert
         var @event = service.GetEvent(newEvent.Id);
-        Assert.True(result);
         Assert.Equivalent(newEvent2, @event);
     }
 
@@ -114,12 +114,10 @@ public class EventServiceTests
         service.AddEvent(newEvent);
 
         // Act
-        var result = service.RemoveEvent(newEvent.Id);
+        service.RemoveEvent(newEvent.Id);
 
         // Assert
-        var @event = service.GetEvent(newEvent.Id);
-        Assert.True(result);
-        Assert.Null(@event);
+        Assert.Throws<NotFoundException>(() => service.GetEvent(newEvent.Id));
     }
 
     [Fact]
@@ -247,11 +245,8 @@ public class EventServiceTests
         // Arrange
         var service = new EventService();
 
-        // Act
-        var result = service.GetEvent(Guid.NewGuid());
-
-        // Assert
-        Assert.Null(result);
+        // Act + Assert
+        Assert.Throws<NotFoundException>(() => service.GetEvent(@Guid.NewGuid()));
     }
 
     [Fact]
@@ -262,11 +257,8 @@ public class EventServiceTests
         var @event = new Event(Guid.NewGuid(), "Тестовое событие", new DateTime(2022, 10, 8),
             new DateTime(2024, 10, 9), "Описание");
 
-        // Act
-        var result = service.ChangeEvent(@event);
-
-        // Assert
-        Assert.False(result);
+        // Act + Assert
+        Assert.Throws<NotFoundException>(() => service.ChangeEvent(@event));
     }
 
     [Fact]

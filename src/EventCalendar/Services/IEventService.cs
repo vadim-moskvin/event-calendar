@@ -7,8 +7,8 @@ public interface IEventService
     PaginatedResult<Event> GetEvents(string? title, DateTime? from, DateTime? to, int page,
         int pageSize);
 
-    Event? GetEvent(Guid id);
+    Event GetEvent(Guid id);
     bool AddEvent(Event @event);
-    bool ChangeEvent(Event @event);
-    bool RemoveEvent(Guid id);
+    void ChangeEvent(Event @event);
+    void RemoveEvent(Guid id);
 }
