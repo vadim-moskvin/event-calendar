@@ -4,6 +4,12 @@ namespace EventCalendar.Controllers.Dtos;
 
 public static class Mapper
 {
+    public static PaginatedResult<GetEventDto> ToGetEventDto(this PaginatedResult<Event> result)
+    {
+        return new PaginatedResult<GetEventDto>(result.Items.Select(x => x.ToGetEventDto()), result.CurrentPage,
+            result.TotalPages, result.TotalItems);
+    }
+
     public static GetEventDto ToGetEventDto(this Event @event)
     {
         return new GetEventDto
@@ -22,9 +28,9 @@ public static class Mapper
             { Description = dto.Description };
     }
 
-    public static Event ToEntity(this CreateEventDto dto)
+    public static Event ToEntity(this EventDto dto)
     {
-        return new Event(dto.Id ?? Guid.NewGuid(), dto.Title, dto.StartAt, dto.EndAt)
+        return new Event(Guid.NewGuid(), dto.Title, dto.StartAt, dto.EndAt)
             { Description = dto.Description };
     }
 }
