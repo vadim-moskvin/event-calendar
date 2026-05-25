@@ -4,7 +4,7 @@ namespace EventCalendar.Services;
 
 public interface IBookingService
 {
-    Guid CreateBookingAsync(Guid eventId);
+    Task<Booking> CreateBookingAsync(Guid eventId);
 
-    Booking GetBookingByIdAsync(Guid bookingId);
+    Task<Booking> GetBookingByIdAsync(Guid bookingId);
 }
