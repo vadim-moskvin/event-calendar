@@ -1,25 +1,24 @@
 ﻿using EventCalendar.Exceptions;
 using EventCalendar.Models;
+using EventCalendar.Repositories;
 
 namespace EventCalendar.Services;
 
-public class BookingService(IEventService eventService) : IBookingService
+public class BookingService(IEventService eventService, IBookingRepository bookingRepository) : IBookingService
 {
     private const string BookingNotFoundException = "Бронь не найдена";
 
-    private readonly Dictionary<Guid, Booking> _bookings = [];
-
-    public Task<Booking> CreateBookingAsync(Guid eventId)
+    public async Task<Booking> CreateBookingAsync(Guid eventId)
     {
         _ = eventService.GetEvent(eventId);
         var booking = Booking.MakeNew(eventId);
-        _bookings.Add(booking.Id, booking);
-        return Task.FromResult(booking);
+        await bookingRepository.CreateOrUpdateBookingAsync(booking);
+        return booking;
     }
 
-    public Task<Booking> GetBookingByIdAsync(Guid bookingId)
+    public async Task<Booking> GetBookingByIdAsync(Guid bookingId)
     {
-        return Task.FromResult(_bookings.GetValueOrDefault(bookingId) ??
-                               throw new NotFoundException(BookingNotFoundException));
+        return await bookingRepository.GetBookingByIdAsync(bookingId) ??
+               throw new NotFoundException(BookingNotFoundException);
     }
 }

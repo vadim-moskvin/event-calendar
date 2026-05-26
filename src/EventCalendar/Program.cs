@@ -1,13 +1,16 @@
 using System.Reflection;
 using EventCalendar.Middlewares;
+using EventCalendar.Repositories;
 using EventCalendar.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddSingleton<IBookingRepository, BookingRepository>();
 builder.Services.AddSingleton<IEventService, EventService>();
 builder.Services.AddSingleton<IBookingService, BookingService>();
 builder.Services.AddControllers();
+builder.Services.AddHostedService<BookingProcessor>(); 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 builder.Services.AddSwaggerGen(options =>
