@@ -121,6 +121,7 @@ public class EventsController(IEventService eventService, IBookingService bookin
     /// <response code="404">Событие с указанным идентификатором не найдено</response>
     [ProducesResponseType(typeof(BookingDto), StatusCodes.Status202Accepted)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
     [Produces("application/json")]
     [HttpPost("{id:guid}/book")]
     public async Task<IActionResult> BookAsync(Guid id)

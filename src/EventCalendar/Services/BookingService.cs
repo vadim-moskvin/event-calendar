@@ -8,11 +8,19 @@ public class BookingService(IEventService eventService, IBookingRepository booki
 {
     private const string BookingNotFoundException = "Бронь не найдена";
 
+    private readonly SemaphoreSlim _semaphoreSlim = new(1, 1);
+
     public async Task<Booking> CreateBookingAsync(Guid eventId)
     {
-        _ = eventService.GetEvent(eventId);
+        await _semaphoreSlim.WaitAsync();
+
+        var @event = eventService.GetEvent(eventId);
+        if (!@event.TryReserveSeats())
+            throw new NoAvailableSeatsException();
         var booking = Booking.MakeNew(eventId);
         await bookingRepository.CreateOrUpdateBookingAsync(booking);
+
+        _semaphoreSlim.Release();
         return booking;
     }
 
