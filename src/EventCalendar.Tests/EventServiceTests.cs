@@ -12,7 +12,7 @@ public class EventServiceTests
         // Arrange
         var service = new EventService();
         var newEvent = new Event(Guid.NewGuid(), "Тестовое событие", new DateTime(2024, 10, 8),
-            new DateTime(2024, 10, 9), "Описание");
+            new DateTime(2024, 10, 9), 5, "Описание");
 
         // Act
         var result = service.AddEvent(newEvent);
@@ -31,9 +31,9 @@ public class EventServiceTests
         var service = new EventService();
         var guid = Guid.NewGuid();
         var newEvent = new Event(guid, "Тестовое событие", new DateTime(2024, 10, 8),
-            new DateTime(2024, 10, 9), "Описание");
+            new DateTime(2024, 10, 9), 5, "Описание");
         var newEvent2 = new Event(guid, "Тестовое событие 2", new DateTime(2024, 10, 8),
-            new DateTime(2024, 10, 9), "Описание");
+            new DateTime(2024, 10, 9), 5, "Описание");
         service.AddEvent(newEvent);
 
         // Act
@@ -53,9 +53,9 @@ public class EventServiceTests
         var service = new EventService();
         var guid = Guid.NewGuid();
         var newEvent = new Event(Guid.NewGuid(), "Тестовое событие", new DateTime(2024, 10, 8),
-            new DateTime(2024, 10, 9), "Описание");
+            new DateTime(2024, 10, 9), 5, "Описание");
         var newEvent2 = new Event(Guid.NewGuid(), "Тестовое событие 2", new DateTime(2024, 10, 8),
-            new DateTime(2024, 10, 9), "Описание");
+            new DateTime(2024, 10, 9), 5, "Описание");
         service.AddEvent(newEvent);
         service.AddEvent(newEvent2);
 
@@ -74,7 +74,7 @@ public class EventServiceTests
         var service = new EventService();
         var guid = Guid.NewGuid();
         var newEvent = new Event(guid, "Тестовое событие", new DateTime(2024, 10, 8),
-            new DateTime(2024, 10, 9), "Описание");
+            new DateTime(2024, 10, 9), 5, "Описание");
         service.AddEvent(newEvent);
 
         // Act
@@ -91,9 +91,9 @@ public class EventServiceTests
         var service = new EventService();
         var guid = Guid.NewGuid();
         var newEvent = new Event(guid, "Тестовое событие", new DateTime(2024, 10, 8),
-            new DateTime(2024, 10, 9), "Описание");
+            new DateTime(2024, 10, 9), 5, "Описание");
         var newEvent2 = new Event(guid, "Тестовое событие 2", new DateTime(2025, 10, 8),
-            new DateTime(2026, 10, 9), "Ещё одно описание");
+            new DateTime(2026, 10, 9), 5, "Ещё одно описание");
         service.AddEvent(newEvent);
 
         // Act
@@ -110,7 +110,7 @@ public class EventServiceTests
         // Arrange
         var service = new EventService();
         var newEvent = new Event(Guid.NewGuid(), "Тестовое событие", new DateTime(2024, 10, 8),
-            new DateTime(2024, 10, 9), "Описание");
+            new DateTime(2024, 10, 9), 5, "Описание");
         service.AddEvent(newEvent);
 
         // Act
@@ -126,9 +126,9 @@ public class EventServiceTests
         // Arrange
         var service = new EventService();
         var newEvent = new Event(Guid.NewGuid(), "Тестовое событие", new DateTime(2024, 10, 8),
-            new DateTime(2024, 10, 9), "Описание");
+            new DateTime(2024, 10, 9), 5, "Описание");
         var newEvent2 = new Event(Guid.NewGuid(), "Тестовое событие 2", new DateTime(2024, 10, 8),
-            new DateTime(2024, 10, 9), "Описание");
+            new DateTime(2024, 10, 9), 5, "Описание");
         service.AddEvent(newEvent);
         service.AddEvent(newEvent2);
 
@@ -146,11 +146,11 @@ public class EventServiceTests
         // Arrange
         var service = new EventService();
         var newEvent = new Event(Guid.NewGuid(), "Тестовое событие", new DateTime(2022, 10, 8),
-            new DateTime(2025, 10, 9), "Описание");
+            new DateTime(2025, 10, 9), 5, "Описание");
         var newEvent2 = new Event(Guid.NewGuid(), "Тестовое событие 2", new DateTime(2023, 10, 8),
-            new DateTime(2025, 10, 9), "Описание 2");
+            new DateTime(2025, 10, 9), 5, "Описание 2");
         var newEvent3 = new Event(Guid.NewGuid(), "Тестовое событие 3", new DateTime(2024, 10, 8),
-            new DateTime(2026, 10, 9), "Описание 3");
+            new DateTime(2026, 10, 9), 5, "Описание 3");
         service.AddEvent(newEvent);
         service.AddEvent(newEvent2);
         service.AddEvent(newEvent3);
@@ -170,11 +170,11 @@ public class EventServiceTests
         // Arrange
         var service = new EventService();
         var newEvent = new Event(Guid.NewGuid(), "Тестовое событие", new DateTime(2022, 10, 8),
-            new DateTime(2024, 10, 9), "Описание");
+            new DateTime(2024, 10, 9), 5, "Описание");
         var newEvent2 = new Event(Guid.NewGuid(), "Тестовое событие 2", new DateTime(2023, 10, 8),
-            new DateTime(2025, 10, 9), "Описание 2");
+            new DateTime(2025, 10, 9), 5, "Описание 2");
         var newEvent3 = new Event(Guid.NewGuid(), "Тестовое событие 3", new DateTime(2024, 10, 8),
-            new DateTime(2026, 10, 9), "Описание 3");
+            new DateTime(2026, 10, 9), 5, "Описание 3");
         service.AddEvent(newEvent);
         service.AddEvent(newEvent2);
         service.AddEvent(newEvent3);
@@ -194,11 +194,11 @@ public class EventServiceTests
         // Arrange
         var service = new EventService();
         var newEvent = new Event(Guid.NewGuid(), "Тестовое событие", new DateTime(2022, 10, 8),
-            new DateTime(2024, 10, 9), "Описание");
+            new DateTime(2024, 10, 9), 5, "Описание");
         var newEvent2 = new Event(Guid.NewGuid(), "Тестовое событие 2", new DateTime(2023, 10, 8),
-            new DateTime(2025, 10, 9), "Описание 2");
+            new DateTime(2025, 10, 9), 5, "Описание 2");
         var newEvent3 = new Event(Guid.NewGuid(), "Тестовое событие 3", new DateTime(2024, 10, 8),
-            new DateTime(2026, 10, 9), "Описание 3");
+            new DateTime(2026, 10, 9), 5, "Описание 3");
         service.AddEvent(newEvent);
         service.AddEvent(newEvent2);
         service.AddEvent(newEvent3);
@@ -221,11 +221,11 @@ public class EventServiceTests
         // Arrange
         var service = new EventService();
         var newEvent = new Event(Guid.NewGuid(), "Тестовое событие", new DateTime(2022, 10, 8),
-            new DateTime(2024, 10, 9), "Описание");
+            new DateTime(2024, 10, 9), 5, "Описание");
         var newEvent2 = new Event(Guid.NewGuid(), "Тестовое событие 2", new DateTime(2023, 10, 8),
-            new DateTime(2025, 10, 9), "Описание 2");
+            new DateTime(2025, 10, 9), 5, "Описание 2");
         var newEvent3 = new Event(Guid.NewGuid(), "Тестовое событие 3", new DateTime(2024, 10, 8),
-            new DateTime(2026, 10, 9), "Описание 3");
+            new DateTime(2026, 10, 9), 5, "Описание 3");
         service.AddEvent(newEvent);
         service.AddEvent(newEvent2);
         service.AddEvent(newEvent3);
@@ -255,7 +255,7 @@ public class EventServiceTests
         // Arrange
         var service = new EventService();
         var @event = new Event(Guid.NewGuid(), "Тестовое событие", new DateTime(2022, 10, 8),
-            new DateTime(2024, 10, 9), "Описание");
+            new DateTime(2024, 10, 9), 5, "Описание");
 
         // Act + Assert
         Assert.Throws<NotFoundException>(() => service.ChangeEvent(@event));
@@ -266,6 +266,6 @@ public class EventServiceTests
     {
         // Act + Assert
         Assert.Throws<ArgumentException>(() => new Event(Guid.NewGuid(), string.Empty, new DateTime(2024, 10, 8),
-            new DateTime(2022, 10, 9), "Описание"));
+            new DateTime(2022, 10, 9), 5, "Описание"));
     }
 }

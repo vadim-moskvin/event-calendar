@@ -1,17 +1,21 @@
-﻿namespace EventCalendar.Models;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace EventCalendar.Models;
 
 public class Event
 {
-    public Event(Guid id, string title, DateTime startAt, DateTime endAt, string? description = null)
+    public Event(Guid id, string title, DateTime startAt, DateTime endAt, int totalSeats, string? description = null)
     {
         Validate(title);
         Validate(startAt, endAt);
+        ValidateTotalSeats(totalSeats);
 
         Id = id;
         Title = title;
         Description = description;
         StartAt = startAt;
         EndAt = endAt;
+        AvailableSeats = TotalSeats = totalSeats;
     }
 
     public Guid Id { get; }
@@ -24,6 +28,10 @@ public class Event
 
     public DateTime EndAt { get; private set; }
 
+    public int TotalSeats { get; init; }
+
+    public int AvailableSeats { get; private set; }
+
     public void Update(string title, string? description, DateTime startAt, DateTime endAt)
     {
         Validate(title);
@@ -33,6 +41,20 @@ public class Event
         Description = description;
         StartAt = startAt;
         EndAt = endAt;
+    }
+
+    public bool TryReserveSeats(int count = 1)
+    {
+        if (count < AvailableSeats)
+            return false;
+
+        AvailableSeats -= count;
+        return true;
+    }
+
+    public void ReleaseSeats(int count = 1)
+    {
+        AvailableSeats += count;
     }
 
     private static void Validate(string title)
@@ -45,5 +67,11 @@ public class Event
     {
         if (startAt >= endAt)
             throw new ArgumentException("Дата и время начала должны быть меньше даты и времени конца.");
+    }
+
+    private static void ValidateTotalSeats(int totalSeats)
+    {
+        if (totalSeats <= 1)
+            throw new ValidationException("Число мест должно быть больше ноля");
     }
 }

@@ -14,7 +14,7 @@ public class BookingServiceTests
         var eventService = new EventService();
         var eventId = Guid.NewGuid();
         eventService.AddEvent(new Event(eventId, "Тестовое событие", DateTime.Today,
-            DateTime.Today + TimeSpan.FromHours(1), "Тестовое описание"));
+            DateTime.Today + TimeSpan.FromHours(1), 5, "Тестовое описание"));
 
         var bookingRepository = new BookingRepository();
         var bookingService = new BookingService(eventService, bookingRepository);
@@ -35,7 +35,7 @@ public class BookingServiceTests
         var eventService = new EventService();
         var eventId = Guid.NewGuid();
         eventService.AddEvent(new Event(eventId, "Тестовое событие", DateTime.Today,
-            DateTime.Today + TimeSpan.FromHours(1), "Тестовое описание"));
+            DateTime.Today + TimeSpan.FromHours(1), 5, "Тестовое описание"));
 
         var bookingRepository = new BookingRepository();
         var bookingService = new BookingService(eventService, bookingRepository);
@@ -55,7 +55,7 @@ public class BookingServiceTests
         var eventService = new EventService();
         var eventId = Guid.NewGuid();
         eventService.AddEvent(new Event(eventId, "Тестовое событие", DateTime.Today,
-            DateTime.Today + TimeSpan.FromHours(1), "Тестовое описание"));
+            DateTime.Today + TimeSpan.FromHours(1), 5, "Тестовое описание"));
 
         var bookingRepository = new BookingRepository();
         var bookingService = new BookingService(eventService, bookingRepository);
@@ -90,7 +90,7 @@ public class BookingServiceTests
         var eventService = new EventService();
         var eventId = Guid.NewGuid();
         eventService.AddEvent(new Event(eventId, "Тестовое событие", DateTime.Today,
-            DateTime.Today + TimeSpan.FromHours(1), "Тестовое описание"));
+            DateTime.Today + TimeSpan.FromHours(1), 5, "Тестовое описание"));
         eventService.RemoveEvent(eventId);
 
         var bookingRepository = new BookingRepository();

@@ -13,6 +13,8 @@ public record EventDto : IValidatableObject
 
     public DateTime EndAt { get; init; }
 
+    public int TotalSeats { get; init; }
+
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
         if (StartAt == default)
@@ -34,6 +36,11 @@ public record EventDto : IValidatableObject
             yield return new ValidationResult(
                 "Дата и время начала должны быть меньше даты и времени конца.",
                 [nameof(StartAt), nameof(EndAt)]);
+        }
+
+        if (TotalSeats <= 0)
+        {
+            yield return new ValidationResult("Число мест является обязательным.");
         }
     }
 }
