@@ -1,4 +1,5 @@
 ﻿using EventCalendar.Controllers.Dtos;
+using EventCalendar.Models;
 using EventCalendar.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,7 +10,7 @@ namespace EventCalendar.Controllers;
 /// </summary>
 [ApiController]
 [Route("[controller]")]
-public class EventsController(IEventService eventService) : ControllerBase
+public class EventsController(IEventService eventService, IBookingService bookingService) : ControllerBase
 {
     /// <summary>
     /// Возвращает полный список событий.
@@ -110,5 +111,37 @@ public class EventsController(IEventService eventService) : ControllerBase
     {
         eventService.RemoveEvent(id);
         return Ok();
+    }
+
+    /// <summary>
+    /// Создаёт бронь на событие
+    /// </summary>
+    /// <param name="id">GUID события</param>
+    /// <response code="202">Бронь успешно создана и ожидает обработки</response>
+    /// <response code="404">Событие с указанным идентификатором не найдено</response>
+    [ProducesResponseType(typeof(BookingDto), StatusCodes.Status202Accepted)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [Produces("application/json")]
+    [HttpPost("{id:guid}/book")]
+    public async Task<IActionResult> BookAsync(Guid id)
+    {
+        var booking = await bookingService.CreateBookingAsync(id);
+        return AcceptedAtAction(nameof(GetBooking), new { id = booking.Id }, booking);
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="id">GUID брони</param>
+    /// <response code="202">Бронь успешно создана и ожидает обработки</response>
+    /// <response code="404">Бронь с указанным идентификатором не найдена</response>
+    [ProducesResponseType(typeof(BookingDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [Produces("application/json")]
+    [HttpGet("~/bookings/{id:guid}")]
+    public async Task<ActionResult<BookingDto>> GetBooking(Guid id)
+    {
+        var booking = await bookingService.GetBookingByIdAsync(id);
+        return Ok(booking.ToDto());
     }
 }

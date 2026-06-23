@@ -33,4 +33,16 @@ public static class Mapper
         return new Event(Guid.NewGuid(), dto.Title, dto.StartAt, dto.EndAt)
             { Description = dto.Description };
     }
+
+    public static BookingDto ToDto(this Booking booking)
+    {
+        return new BookingDto
+        {
+            Id = booking.Id,
+            EventId = booking.EventId,
+            Status = booking.Status.ToString(),
+            CreatedAt = booking.CreatedAt,
+            ProcessedAt = booking.ProcessedAt
+        };
+    }
 }
