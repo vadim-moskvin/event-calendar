@@ -1,10 +1,9 @@
 ﻿using EventCalendar.Exceptions;
 using EventCalendar.Models;
-using EventCalendar.Repositories;
 
 namespace EventCalendar.Services;
 
-public class BookingService(IEventService eventService, IBookingRepository bookingRepository) : IBookingService
+public class BookingService(IEventService eventService, IBookingStore bookingStore) : IBookingService
 {
     private const string BookingNotFoundException = "Бронь не найдена";
 
@@ -18,7 +17,7 @@ public class BookingService(IEventService eventService, IBookingRepository booki
         if (!@event.TryReserveSeats())
             throw new NoAvailableSeatsException();
         var booking = Booking.MakeNew(eventId);
-        await bookingRepository.CreateOrUpdateBookingAsync(booking);
+        await bookingStore.CreateOrUpdateBookingAsync(booking);
 
         _semaphoreSlim.Release();
         return booking;
@@ -26,7 +25,7 @@ public class BookingService(IEventService eventService, IBookingRepository booki
 
     public async Task<Booking> GetBookingByIdAsync(Guid bookingId)
     {
-        return await bookingRepository.GetBookingByIdAsync(bookingId) ??
+        return await bookingStore.GetBookingByIdAsync(bookingId) ??
                throw new NotFoundException(BookingNotFoundException);
     }
 }

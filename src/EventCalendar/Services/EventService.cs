@@ -3,17 +3,15 @@ using EventCalendar.Models;
 
 namespace EventCalendar.Services;
 
-public class EventService : IEventService
+public class EventService(IEventStore eventStore) : IEventService
 {
     private const string DateOutOfRangeException = "Параметр {0} не может быть больше параметра {1}.";
     private const string PageOutOfRangeException = "Номер страницы должен быть больше ноля.";
     private const string PageSizeOutOfRangeException = "Размер страницы должен быть больше ноля.";
-    private const string EventNotFoundException= "Событие не найдено";
+    private const string EventNotFoundException = "Событие не найдено";
 
     public const int DefaultPage = 1;
     public const int DefaultPageSize = 10;
-
-    private readonly Dictionary<Guid, Event> _events = [];
 
     public PaginatedResult<Event> GetEvents(string? title, DateTime? from, DateTime? to, int page = DefaultPage,
         int pageSize = DefaultPageSize)
@@ -27,7 +25,7 @@ public class EventService : IEventService
         if (pageSize < 1)
             throw new BadRequestException(PageSizeOutOfRangeException);
 
-        var query = _events.Values.AsQueryable();
+        var query = eventStore.Get().AsQueryable();
 
         if (title != null)
             query = query.Where(e => e.Title.Contains(title, StringComparison.CurrentCultureIgnoreCase));
@@ -50,26 +48,23 @@ public class EventService : IEventService
 
     public Event GetEvent(Guid id)
     {
-        return _events.GetValueOrDefault(id) ?? throw new NotFoundException(EventNotFoundException);
+        return eventStore.Get(id) ?? throw new NotFoundException(EventNotFoundException);
     }
 
     public bool AddEvent(Event @event)
     {
-        return _events.TryAdd(@event.Id, @event);
+        return eventStore.Add(@event);
     }
 
     public void ChangeEvent(Event @event)
     {
-        if (!_events.ContainsKey(@event.Id))
+        if (!eventStore.Update(@event))
             throw new NotFoundException(EventNotFoundException);
-
-        _events[@event.Id] = @event;
     }
 
     public void RemoveEvent(Guid id)
     {
-        var result = _events.Remove(id);
-        if (!result)
+        if (!eventStore.Remove(id))
             throw new NotFoundException(EventNotFoundException);
     }
 }

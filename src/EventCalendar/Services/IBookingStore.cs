@@ -1,8 +1,8 @@
 ﻿using EventCalendar.Models;
 
-namespace EventCalendar.Repositories;
+namespace EventCalendar.Services;
 
-public interface IBookingRepository
+public interface IBookingStore
 {
     Task CreateOrUpdateBookingAsync(Booking booking);
 
