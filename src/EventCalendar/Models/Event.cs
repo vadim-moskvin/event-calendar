@@ -45,7 +45,7 @@ public class Event
 
     public bool TryReserveSeats(int count = 1)
     {
-        if (count < AvailableSeats)
+        if (AvailableSeats < count)
             return false;
 
         AvailableSeats -= count;
@@ -71,7 +71,7 @@ public class Event
 
     private static void ValidateTotalSeats(int totalSeats)
     {
-        if (totalSeats <= 1)
+        if (totalSeats < 1)
             throw new ValidationException("Число мест должно быть больше ноля");
     }
 }

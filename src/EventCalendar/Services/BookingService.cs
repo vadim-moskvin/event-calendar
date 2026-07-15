@@ -13,14 +13,20 @@ public class BookingService(IEventService eventService, IBookingStore bookingSto
     {
         await _semaphoreSlim.WaitAsync();
 
-        var @event = eventService.GetEvent(eventId);
-        if (!@event.TryReserveSeats())
-            throw new NoAvailableSeatsException();
-        var booking = Booking.MakeNew(eventId);
-        await bookingStore.CreateOrUpdateBookingAsync(booking);
-
-        _semaphoreSlim.Release();
-        return booking;
+        try
+        {
+            var @event = eventService.GetEvent(eventId);
+            if (!@event.TryReserveSeats())
+                throw new NoAvailableSeatsException();
+            var booking = Booking.MakeNew(eventId);
+            await bookingStore.CreateOrUpdateBookingAsync(booking);
+        
+            return booking;
+        }
+        finally
+        {
+            _semaphoreSlim.Release();
+        }
     }
 
     public async Task<Booking> GetBookingByIdAsync(Guid bookingId)
