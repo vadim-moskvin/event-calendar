@@ -1,8 +1,8 @@
 ﻿using EventCalendar.Models;
 
-namespace EventCalendar.Repositories;
+namespace EventCalendar.Services;
 
-public class BookingRepository : IBookingRepository
+public class InMemoryBookingStore : IBookingStore
 {
     private readonly Dictionary<Guid, Booking> _bookings = [];
 

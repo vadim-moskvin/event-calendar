@@ -1,6 +1,6 @@
 ﻿using EventCalendar.Exceptions;
 using EventCalendar.Models;
-using EventCalendar.Services;
+using EventCalendar.Tests.TestHelpers;
 
 namespace EventCalendar.Tests;
 
@@ -10,9 +10,9 @@ public class EventServiceTests
     public void Add_new_event()
     {
         // Arrange
-        var service = new EventService();
+        var service = TestServiceFactory.MakeEventService();
         var newEvent = new Event(Guid.NewGuid(), "Тестовое событие", new DateTime(2024, 10, 8),
-            new DateTime(2024, 10, 9), "Описание");
+            new DateTime(2024, 10, 9), 5, "Описание");
 
         // Act
         var result = service.AddEvent(newEvent);
@@ -28,12 +28,13 @@ public class EventServiceTests
     public void Add_new_event_Id_already_exists()
     {
         // Arrange
-        var service = new EventService();
+        var service = TestServiceFactory.MakeEventService();
+        ;
         var guid = Guid.NewGuid();
         var newEvent = new Event(guid, "Тестовое событие", new DateTime(2024, 10, 8),
-            new DateTime(2024, 10, 9), "Описание");
+            new DateTime(2024, 10, 9), 5, "Описание");
         var newEvent2 = new Event(guid, "Тестовое событие 2", new DateTime(2024, 10, 8),
-            new DateTime(2024, 10, 9), "Описание");
+            new DateTime(2024, 10, 9), 5, "Описание");
         service.AddEvent(newEvent);
 
         // Act
@@ -50,12 +51,13 @@ public class EventServiceTests
     public void Get_all_events()
     {
         // Arrange
-        var service = new EventService();
+        var service = TestServiceFactory.MakeEventService();
+        ;
         var guid = Guid.NewGuid();
         var newEvent = new Event(Guid.NewGuid(), "Тестовое событие", new DateTime(2024, 10, 8),
-            new DateTime(2024, 10, 9), "Описание");
+            new DateTime(2024, 10, 9), 5, "Описание");
         var newEvent2 = new Event(Guid.NewGuid(), "Тестовое событие 2", new DateTime(2024, 10, 8),
-            new DateTime(2024, 10, 9), "Описание");
+            new DateTime(2024, 10, 9), 5, "Описание");
         service.AddEvent(newEvent);
         service.AddEvent(newEvent2);
 
@@ -71,10 +73,11 @@ public class EventServiceTests
     public void Get_event_by_id()
     {
         // Arrange
-        var service = new EventService();
+        var service = TestServiceFactory.MakeEventService();
+        ;
         var guid = Guid.NewGuid();
         var newEvent = new Event(guid, "Тестовое событие", new DateTime(2024, 10, 8),
-            new DateTime(2024, 10, 9), "Описание");
+            new DateTime(2024, 10, 9), 5, "Описание");
         service.AddEvent(newEvent);
 
         // Act
@@ -88,12 +91,13 @@ public class EventServiceTests
     public void Update_event()
     {
         // Arrange
-        var service = new EventService();
+        var service = TestServiceFactory.MakeEventService();
+        ;
         var guid = Guid.NewGuid();
         var newEvent = new Event(guid, "Тестовое событие", new DateTime(2024, 10, 8),
-            new DateTime(2024, 10, 9), "Описание");
+            new DateTime(2024, 10, 9), 5, "Описание");
         var newEvent2 = new Event(guid, "Тестовое событие 2", new DateTime(2025, 10, 8),
-            new DateTime(2026, 10, 9), "Ещё одно описание");
+            new DateTime(2026, 10, 9), 5, "Ещё одно описание");
         service.AddEvent(newEvent);
 
         // Act
@@ -108,9 +112,10 @@ public class EventServiceTests
     public void Delete_event()
     {
         // Arrange
-        var service = new EventService();
+        var service = TestServiceFactory.MakeEventService();
+
         var newEvent = new Event(Guid.NewGuid(), "Тестовое событие", new DateTime(2024, 10, 8),
-            new DateTime(2024, 10, 9), "Описание");
+            new DateTime(2024, 10, 9), 5, "Описание");
         service.AddEvent(newEvent);
 
         // Act
@@ -124,11 +129,12 @@ public class EventServiceTests
     public void Filter_by_name()
     {
         // Arrange
-        var service = new EventService();
+        var service = TestServiceFactory.MakeEventService();
+        ;
         var newEvent = new Event(Guid.NewGuid(), "Тестовое событие", new DateTime(2024, 10, 8),
-            new DateTime(2024, 10, 9), "Описание");
+            new DateTime(2024, 10, 9), 5, "Описание");
         var newEvent2 = new Event(Guid.NewGuid(), "Тестовое событие 2", new DateTime(2024, 10, 8),
-            new DateTime(2024, 10, 9), "Описание");
+            new DateTime(2024, 10, 9), 5, "Описание");
         service.AddEvent(newEvent);
         service.AddEvent(newEvent2);
 
@@ -144,13 +150,14 @@ public class EventServiceTests
     public void Filter_by_from_date()
     {
         // Arrange
-        var service = new EventService();
+        var service = TestServiceFactory.MakeEventService();
+        ;
         var newEvent = new Event(Guid.NewGuid(), "Тестовое событие", new DateTime(2022, 10, 8),
-            new DateTime(2025, 10, 9), "Описание");
+            new DateTime(2025, 10, 9), 5, "Описание");
         var newEvent2 = new Event(Guid.NewGuid(), "Тестовое событие 2", new DateTime(2023, 10, 8),
-            new DateTime(2025, 10, 9), "Описание 2");
+            new DateTime(2025, 10, 9), 5, "Описание 2");
         var newEvent3 = new Event(Guid.NewGuid(), "Тестовое событие 3", new DateTime(2024, 10, 8),
-            new DateTime(2026, 10, 9), "Описание 3");
+            new DateTime(2026, 10, 9), 5, "Описание 3");
         service.AddEvent(newEvent);
         service.AddEvent(newEvent2);
         service.AddEvent(newEvent3);
@@ -168,13 +175,13 @@ public class EventServiceTests
     public void Filter_by_to_date()
     {
         // Arrange
-        var service = new EventService();
+        var service = TestServiceFactory.MakeEventService();
         var newEvent = new Event(Guid.NewGuid(), "Тестовое событие", new DateTime(2022, 10, 8),
-            new DateTime(2024, 10, 9), "Описание");
+            new DateTime(2024, 10, 9), 5, "Описание");
         var newEvent2 = new Event(Guid.NewGuid(), "Тестовое событие 2", new DateTime(2023, 10, 8),
-            new DateTime(2025, 10, 9), "Описание 2");
+            new DateTime(2025, 10, 9), 5, "Описание 2");
         var newEvent3 = new Event(Guid.NewGuid(), "Тестовое событие 3", new DateTime(2024, 10, 8),
-            new DateTime(2026, 10, 9), "Описание 3");
+            new DateTime(2026, 10, 9), 5, "Описание 3");
         service.AddEvent(newEvent);
         service.AddEvent(newEvent2);
         service.AddEvent(newEvent3);
@@ -192,13 +199,13 @@ public class EventServiceTests
     public void Paginate()
     {
         // Arrange
-        var service = new EventService();
+        var service = TestServiceFactory.MakeEventService();
         var newEvent = new Event(Guid.NewGuid(), "Тестовое событие", new DateTime(2022, 10, 8),
-            new DateTime(2024, 10, 9), "Описание");
+            new DateTime(2024, 10, 9), 5, "Описание");
         var newEvent2 = new Event(Guid.NewGuid(), "Тестовое событие 2", new DateTime(2023, 10, 8),
-            new DateTime(2025, 10, 9), "Описание 2");
+            new DateTime(2025, 10, 9), 5, "Описание 2");
         var newEvent3 = new Event(Guid.NewGuid(), "Тестовое событие 3", new DateTime(2024, 10, 8),
-            new DateTime(2026, 10, 9), "Описание 3");
+            new DateTime(2026, 10, 9), 5, "Описание 3");
         service.AddEvent(newEvent);
         service.AddEvent(newEvent2);
         service.AddEvent(newEvent3);
@@ -219,13 +226,13 @@ public class EventServiceTests
     public void Combine_filter()
     {
         // Arrange
-        var service = new EventService();
+        var service = TestServiceFactory.MakeEventService();
         var newEvent = new Event(Guid.NewGuid(), "Тестовое событие", new DateTime(2022, 10, 8),
-            new DateTime(2024, 10, 9), "Описание");
+            new DateTime(2024, 10, 9), 5, "Описание");
         var newEvent2 = new Event(Guid.NewGuid(), "Тестовое событие 2", new DateTime(2023, 10, 8),
-            new DateTime(2025, 10, 9), "Описание 2");
+            new DateTime(2025, 10, 9), 5, "Описание 2");
         var newEvent3 = new Event(Guid.NewGuid(), "Тестовое событие 3", new DateTime(2024, 10, 8),
-            new DateTime(2026, 10, 9), "Описание 3");
+            new DateTime(2026, 10, 9), 5, "Описание 3");
         service.AddEvent(newEvent);
         service.AddEvent(newEvent2);
         service.AddEvent(newEvent3);
@@ -243,7 +250,7 @@ public class EventServiceTests
     public void Get_non_existing_event()
     {
         // Arrange
-        var service = new EventService();
+        var service = TestServiceFactory.MakeEventService();
 
         // Act + Assert
         Assert.Throws<NotFoundException>(() => service.GetEvent(@Guid.NewGuid()));
@@ -253,9 +260,9 @@ public class EventServiceTests
     public void Update_non_existing_event()
     {
         // Arrange
-        var service = new EventService();
+        var service = TestServiceFactory.MakeEventService();
         var @event = new Event(Guid.NewGuid(), "Тестовое событие", new DateTime(2022, 10, 8),
-            new DateTime(2024, 10, 9), "Описание");
+            new DateTime(2024, 10, 9), 5, "Описание");
 
         // Act + Assert
         Assert.Throws<NotFoundException>(() => service.ChangeEvent(@event));
@@ -266,6 +273,6 @@ public class EventServiceTests
     {
         // Act + Assert
         Assert.Throws<ArgumentException>(() => new Event(Guid.NewGuid(), string.Empty, new DateTime(2024, 10, 8),
-            new DateTime(2022, 10, 9), "Описание"));
+            new DateTime(2022, 10, 9), 5, "Описание"));
     }
 }
