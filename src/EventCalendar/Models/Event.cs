@@ -4,6 +4,10 @@ namespace EventCalendar.Models;
 
 public class Event
 {
+    private Event()
+    {
+    }
+
     public Event(Guid id, string title, DateTime startAt, DateTime endAt, int totalSeats, string? description = null)
     {
         Validate(title);
@@ -20,7 +24,7 @@ public class Event
 
     public Guid Id { get; }
 
-    public string Title { get; private set; }
+    public string Title { get; private set; } = null!;
 
     public string? Description { get; set; }
 
@@ -31,6 +35,8 @@ public class Event
     public int TotalSeats { get; init; }
 
     public int AvailableSeats { get; private set; }
+
+    public List<Booking> Bookings { get; private set; } = null!;
 
     public void Update(string title, string? description, DateTime startAt, DateTime endAt)
     {
