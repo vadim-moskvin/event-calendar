@@ -15,7 +15,7 @@ public class BookingServiceTests
         var @event = TestServiceFactory.MakeEvent(id: eventId, totalSeats: seats);
 
         var eventService = TestServiceFactory.MakeEventService();
-        eventService.AddEvent(@event);
+        eventService.AddEventAsync(@event);
 
         var bookingService = TestServiceFactory.MakeBookingService(eventService);
 
@@ -38,7 +38,7 @@ public class BookingServiceTests
         var @event = TestServiceFactory.MakeEvent(id: eventId, totalSeats: seats);
 
         var eventService = TestServiceFactory.MakeEventService();
-        eventService.AddEvent(@event);
+        eventService.AddEventAsync(@event);
 
         var bookingService = TestServiceFactory.MakeBookingService(eventService);
 
@@ -70,7 +70,7 @@ public class BookingServiceTests
         var @event = TestServiceFactory.MakeEvent(id: eventId);
 
         var eventService = TestServiceFactory.MakeEventService();
-        eventService.AddEvent(@event);
+        eventService.AddEventAsync(@event);
 
         var bookingService = TestServiceFactory.MakeBookingService(eventService);
 
@@ -90,7 +90,7 @@ public class BookingServiceTests
         var @event = TestServiceFactory.MakeEvent(id: eventId);
 
         var eventService = TestServiceFactory.MakeEventService();
-        eventService.AddEvent(@event);
+        eventService.AddEventAsync(@event);
 
         var bookingService = TestServiceFactory.MakeBookingService(eventService);
         var newBooking = await bookingService.CreateBookingAsync(eventId);
@@ -124,8 +124,8 @@ public class BookingServiceTests
         var @event = TestServiceFactory.MakeEvent(id: eventId);
 
         var eventService = TestServiceFactory.MakeEventService();
-        eventService.AddEvent(@event);
-        eventService.RemoveEvent(eventId);
+        eventService.AddEventAsync(@event);
+        eventService.RemoveEventAsync(eventId);
 
         var bookingService = TestServiceFactory.MakeBookingService(eventService);
 
@@ -154,7 +154,7 @@ public class BookingServiceTests
         var @event = TestServiceFactory.MakeEvent(id: eventId, totalSeats: seats);
 
         var eventService = TestServiceFactory.MakeEventService();
-        eventService.AddEvent(@event);
+        eventService.AddEventAsync(@event);
 
         var bookingService = TestServiceFactory.MakeBookingService(eventService);
 
@@ -194,7 +194,7 @@ public class BookingServiceTests
         var @event = TestServiceFactory.MakeEvent(id: eventId, totalSeats: seats);
 
         var eventService = TestServiceFactory.MakeEventService();
-        eventService.AddEvent(@event);
+        eventService.AddEventAsync(@event);
 
         var bookingService = TestServiceFactory.MakeBookingService(eventService);
 
@@ -220,7 +220,7 @@ public class BookingServiceTests
         var @event = TestServiceFactory.MakeEvent(id: eventId, totalSeats: seats);
 
         var eventService = TestServiceFactory.MakeEventService();
-        eventService.AddEvent(@event);
+        eventService.AddEventAsync(@event);
 
         var bookingService = TestServiceFactory.MakeBookingService(eventService);
         var booking = await bookingService.CreateBookingAsync(eventId);

@@ -15,10 +15,10 @@ public class EventServiceTests
             new DateTime(2024, 10, 9), 5, "Описание");
 
         // Act
-        var result = service.AddEvent(newEvent);
+        var result = service.AddEventAsync(newEvent);
 
         // Assert
-        var @event = service.GetEvent(newEvent.Id);
+        var @event = service.GetEventAsync(newEvent.Id);
         Assert.True(result);
         Assert.NotNull(@event);
         Assert.Equivalent(newEvent, @event);
@@ -35,10 +35,10 @@ public class EventServiceTests
             new DateTime(2024, 10, 9), 5, "Описание");
         var newEvent2 = new Event(guid, "Тестовое событие 2", new DateTime(2024, 10, 8),
             new DateTime(2024, 10, 9), 5, "Описание");
-        service.AddEvent(newEvent);
+        service.AddEventAsync(newEvent);
 
         // Act
-        var result = service.AddEvent(newEvent);
+        var result = service.AddEventAsync(newEvent);
 
         // Assert
         var events = service.GetEvents(null, null, null, page: 1, pageSize: 10);
@@ -58,8 +58,8 @@ public class EventServiceTests
             new DateTime(2024, 10, 9), 5, "Описание");
         var newEvent2 = new Event(Guid.NewGuid(), "Тестовое событие 2", new DateTime(2024, 10, 8),
             new DateTime(2024, 10, 9), 5, "Описание");
-        service.AddEvent(newEvent);
-        service.AddEvent(newEvent2);
+        service.AddEventAsync(newEvent);
+        service.AddEventAsync(newEvent2);
 
         // Act
         var events = service.GetEvents(null, null, null, page: 1, pageSize: 10);
@@ -78,10 +78,10 @@ public class EventServiceTests
         var guid = Guid.NewGuid();
         var newEvent = new Event(guid, "Тестовое событие", new DateTime(2024, 10, 8),
             new DateTime(2024, 10, 9), 5, "Описание");
-        service.AddEvent(newEvent);
+        service.AddEventAsync(newEvent);
 
         // Act
-        var @event = service.GetEvent(guid);
+        var @event = service.GetEventAsync(guid);
 
         // Assert
         Assert.Equivalent(newEvent, @event);
@@ -98,13 +98,13 @@ public class EventServiceTests
             new DateTime(2024, 10, 9), 5, "Описание");
         var newEvent2 = new Event(guid, "Тестовое событие 2", new DateTime(2025, 10, 8),
             new DateTime(2026, 10, 9), 5, "Ещё одно описание");
-        service.AddEvent(newEvent);
+        service.AddEventAsync(newEvent);
 
         // Act
-        service.ChangeEvent(newEvent2);
+        service.ChangeEventAsync(newEvent2);
 
         // Assert
-        var @event = service.GetEvent(newEvent.Id);
+        var @event = service.GetEventAsync(newEvent.Id);
         Assert.Equivalent(newEvent2, @event);
     }
 
@@ -116,13 +116,13 @@ public class EventServiceTests
 
         var newEvent = new Event(Guid.NewGuid(), "Тестовое событие", new DateTime(2024, 10, 8),
             new DateTime(2024, 10, 9), 5, "Описание");
-        service.AddEvent(newEvent);
+        service.AddEventAsync(newEvent);
 
         // Act
-        service.RemoveEvent(newEvent.Id);
+        service.RemoveEventAsync(newEvent.Id);
 
         // Assert
-        Assert.Throws<NotFoundException>(() => service.GetEvent(newEvent.Id));
+        Assert.Throws<NotFoundException>(() => service.GetEventAsync(newEvent.Id));
     }
 
     [Fact]
@@ -135,8 +135,8 @@ public class EventServiceTests
             new DateTime(2024, 10, 9), 5, "Описание");
         var newEvent2 = new Event(Guid.NewGuid(), "Тестовое событие 2", new DateTime(2024, 10, 8),
             new DateTime(2024, 10, 9), 5, "Описание");
-        service.AddEvent(newEvent);
-        service.AddEvent(newEvent2);
+        service.AddEventAsync(newEvent);
+        service.AddEventAsync(newEvent2);
 
         // Act
         var events = service.GetEvents("2", null, null, page: 1, pageSize: 10);
@@ -158,9 +158,9 @@ public class EventServiceTests
             new DateTime(2025, 10, 9), 5, "Описание 2");
         var newEvent3 = new Event(Guid.NewGuid(), "Тестовое событие 3", new DateTime(2024, 10, 8),
             new DateTime(2026, 10, 9), 5, "Описание 3");
-        service.AddEvent(newEvent);
-        service.AddEvent(newEvent2);
-        service.AddEvent(newEvent3);
+        service.AddEventAsync(newEvent);
+        service.AddEventAsync(newEvent2);
+        service.AddEventAsync(newEvent3);
 
         // Act
         var events = service.GetEvents(null, new DateTime(2023, 1, 1), null, page: 1, pageSize: 10);
@@ -182,9 +182,9 @@ public class EventServiceTests
             new DateTime(2025, 10, 9), 5, "Описание 2");
         var newEvent3 = new Event(Guid.NewGuid(), "Тестовое событие 3", new DateTime(2024, 10, 8),
             new DateTime(2026, 10, 9), 5, "Описание 3");
-        service.AddEvent(newEvent);
-        service.AddEvent(newEvent2);
-        service.AddEvent(newEvent3);
+        service.AddEventAsync(newEvent);
+        service.AddEventAsync(newEvent2);
+        service.AddEventAsync(newEvent3);
 
         // Act
         var events = service.GetEvents(null, null, new DateTime(2025, 12, 31), page: 1, pageSize: 10);
@@ -206,9 +206,9 @@ public class EventServiceTests
             new DateTime(2025, 10, 9), 5, "Описание 2");
         var newEvent3 = new Event(Guid.NewGuid(), "Тестовое событие 3", new DateTime(2024, 10, 8),
             new DateTime(2026, 10, 9), 5, "Описание 3");
-        service.AddEvent(newEvent);
-        service.AddEvent(newEvent2);
-        service.AddEvent(newEvent3);
+        service.AddEventAsync(newEvent);
+        service.AddEventAsync(newEvent2);
+        service.AddEventAsync(newEvent3);
 
         // Act
         var result = service.GetEvents(null, null, null, page: 1, pageSize: 2);
@@ -233,9 +233,9 @@ public class EventServiceTests
             new DateTime(2025, 10, 9), 5, "Описание 2");
         var newEvent3 = new Event(Guid.NewGuid(), "Тестовое событие 3", new DateTime(2024, 10, 8),
             new DateTime(2026, 10, 9), 5, "Описание 3");
-        service.AddEvent(newEvent);
-        service.AddEvent(newEvent2);
-        service.AddEvent(newEvent3);
+        service.AddEventAsync(newEvent);
+        service.AddEventAsync(newEvent2);
+        service.AddEventAsync(newEvent3);
 
         // Act
         var result = service.GetEvents("3", new DateTime(2023, 1, 1),
@@ -253,7 +253,7 @@ public class EventServiceTests
         var service = TestServiceFactory.MakeEventService();
 
         // Act + Assert
-        Assert.Throws<NotFoundException>(() => service.GetEvent(@Guid.NewGuid()));
+        Assert.Throws<NotFoundException>(() => service.GetEventAsync(@Guid.NewGuid()));
     }
 
     [Fact]
@@ -265,7 +265,7 @@ public class EventServiceTests
             new DateTime(2024, 10, 9), 5, "Описание");
 
         // Act + Assert
-        Assert.Throws<NotFoundException>(() => service.ChangeEvent(@event));
+        Assert.Throws<NotFoundException>(() => service.ChangeEventAsync(@event));
     }
 
     [Fact]
