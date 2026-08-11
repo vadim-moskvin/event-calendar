@@ -127,7 +127,7 @@ public class EventsController(IEventService eventService, IBookingService bookin
     public async Task<IActionResult> BookAsync(Guid id)
     {
         var booking = await bookingService.CreateBookingAsync(id);
-        return AcceptedAtAction(nameof(GetBooking), new { id = booking.Id }, booking);
+        return AcceptedAtAction(nameof(GetBooking), new { id = booking.Id }, booking.ToDto());
     }
 
     /// <summary>

@@ -1,10 +1,17 @@
 using System.Reflection;
+using EventCalendar.DataAccess;
 using EventCalendar.Middlewares;
 using EventCalendar.Services;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+                       ?? throw new InvalidOperationException("Connection string 'Default' not found.");
+
+builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString)); 
+
 builder.Services.AddScoped<IEventService, EventService>();
 builder.Services.AddScoped<IBookingService, BookingService>();
 builder.Services.AddControllers();
@@ -20,6 +27,12 @@ builder.Services.AddSwaggerGen(options =>
 
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.EnsureCreated();
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

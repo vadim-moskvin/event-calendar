@@ -21,7 +21,7 @@ public class BookingService(IEventService eventService, AppDbContext appDbContex
             if (!@event.TryReserveSeats())
                 throw new NoAvailableSeatsException();
             var booking = Booking.MakeNew(eventId);
-            appDbContext.Bookings.Update(booking);
+            appDbContext.Bookings.Add(booking);
             await appDbContext.SaveChangesAsync();
         
             return booking;
