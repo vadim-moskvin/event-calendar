@@ -4,65 +4,57 @@ using EventCalendar.Tests.TestHelpers;
 
 namespace EventCalendar.Tests;
 
-public class EventServiceTests
+public class EventServiceTests : TestsBase
 {
     [Fact]
-    public void Add_new_event()
+    public async Task Add_new_event()
     {
         // Arrange
-        var service = TestServiceFactory.MakeEventService();
         var newEvent = new Event(Guid.NewGuid(), "Тестовое событие", new DateTime(2024, 10, 8),
             new DateTime(2024, 10, 9), 5, "Описание");
 
         // Act
-        var result = service.AddEventAsync(newEvent);
+        var result = await EventService.AddEventAsync(newEvent);
 
         // Assert
-        var @event = service.GetEventAsync(newEvent.Id);
+        var @event = await EventService.GetEventAsync(newEvent.Id);
         Assert.True(result);
         Assert.NotNull(@event);
         Assert.Equivalent(newEvent, @event);
     }
 
     [Fact]
-    public void Add_new_event_Id_already_exists()
+    public async Task Add_new_event_Id_already_exists()
     {
         // Arrange
-        var service = TestServiceFactory.MakeEventService();
-        ;
         var guid = Guid.NewGuid();
         var newEvent = new Event(guid, "Тестовое событие", new DateTime(2024, 10, 8),
             new DateTime(2024, 10, 9), 5, "Описание");
-        var newEvent2 = new Event(guid, "Тестовое событие 2", new DateTime(2024, 10, 8),
-            new DateTime(2024, 10, 9), 5, "Описание");
-        service.AddEventAsync(newEvent);
+        await EventService.AddEventAsync(newEvent);
 
         // Act
-        var result = service.AddEventAsync(newEvent);
+        var result = await EventService.AddEventAsync(newEvent);
 
         // Assert
-        var events = service.GetEvents(null, null, null, page: 1, pageSize: 10);
+        var events = EventService.GetEvents(null, null, null, page: 1, pageSize: 10);
         Assert.False(result);
         Assert.Single(events.Items);
         Assert.Equivalent(newEvent, events.Items.First());
     }
 
     [Fact]
-    public void Get_all_events()
+    public async Task Get_all_events()
     {
         // Arrange
-        var service = TestServiceFactory.MakeEventService();
-        ;
-        var guid = Guid.NewGuid();
         var newEvent = new Event(Guid.NewGuid(), "Тестовое событие", new DateTime(2024, 10, 8),
             new DateTime(2024, 10, 9), 5, "Описание");
         var newEvent2 = new Event(Guid.NewGuid(), "Тестовое событие 2", new DateTime(2024, 10, 8),
             new DateTime(2024, 10, 9), 5, "Описание");
-        service.AddEventAsync(newEvent);
-        service.AddEventAsync(newEvent2);
+        await EventService.AddEventAsync(newEvent);
+        await EventService.AddEventAsync(newEvent2);
 
         // Act
-        var events = service.GetEvents(null, null, null, page: 1, pageSize: 10);
+        var events = EventService.GetEvents(null, null, null, page: 1, pageSize: 10);
 
         // Assert
         Assert.Equal(2, events.Items.Count());
@@ -70,76 +62,68 @@ public class EventServiceTests
     }
 
     [Fact]
-    public void Get_event_by_id()
+    public async Task Get_event_by_id()
     {
         // Arrange
-        var service = TestServiceFactory.MakeEventService();
-        ;
         var guid = Guid.NewGuid();
         var newEvent = new Event(guid, "Тестовое событие", new DateTime(2024, 10, 8),
             new DateTime(2024, 10, 9), 5, "Описание");
-        service.AddEventAsync(newEvent);
+        await EventService.AddEventAsync(newEvent);
 
         // Act
-        var @event = service.GetEventAsync(guid);
+        var @event = await EventService.GetEventAsync(guid);
 
         // Assert
         Assert.Equivalent(newEvent, @event);
     }
 
     [Fact]
-    public void Update_event()
+    public async Task Update_event()
     {
         // Arrange
-        var service = TestServiceFactory.MakeEventService();
-        ;
         var guid = Guid.NewGuid();
         var newEvent = new Event(guid, "Тестовое событие", new DateTime(2024, 10, 8),
             new DateTime(2024, 10, 9), 5, "Описание");
         var newEvent2 = new Event(guid, "Тестовое событие 2", new DateTime(2025, 10, 8),
             new DateTime(2026, 10, 9), 5, "Ещё одно описание");
-        service.AddEventAsync(newEvent);
+        await EventService.AddEventAsync(newEvent);
 
         // Act
-        service.ChangeEventAsync(newEvent2);
+        await EventService.ChangeEventAsync(newEvent2);
 
         // Assert
-        var @event = service.GetEventAsync(newEvent.Id);
+        var @event = await EventService.GetEventAsync(newEvent.Id);
         Assert.Equivalent(newEvent2, @event);
     }
 
     [Fact]
-    public void Delete_event()
+    public async Task Delete_event()
     {
         // Arrange
-        var service = TestServiceFactory.MakeEventService();
-
         var newEvent = new Event(Guid.NewGuid(), "Тестовое событие", new DateTime(2024, 10, 8),
             new DateTime(2024, 10, 9), 5, "Описание");
-        service.AddEventAsync(newEvent);
+        await EventService.AddEventAsync(newEvent);
 
         // Act
-        service.RemoveEventAsync(newEvent.Id);
+        await EventService.RemoveEventAsync(newEvent.Id);
 
         // Assert
-        Assert.Throws<NotFoundException>(() => service.GetEventAsync(newEvent.Id));
+        await Assert.ThrowsAsync<NotFoundException>(async () => await EventService.GetEventAsync(newEvent.Id));
     }
 
     [Fact]
-    public void Filter_by_name()
+    public async Task Filter_by_name()
     {
         // Arrange
-        var service = TestServiceFactory.MakeEventService();
-        ;
         var newEvent = new Event(Guid.NewGuid(), "Тестовое событие", new DateTime(2024, 10, 8),
             new DateTime(2024, 10, 9), 5, "Описание");
         var newEvent2 = new Event(Guid.NewGuid(), "Тестовое событие 2", new DateTime(2024, 10, 8),
             new DateTime(2024, 10, 9), 5, "Описание");
-        service.AddEventAsync(newEvent);
-        service.AddEventAsync(newEvent2);
+        await EventService.AddEventAsync(newEvent);
+        await EventService.AddEventAsync(newEvent2);
 
         // Act
-        var events = service.GetEvents("2", null, null, page: 1, pageSize: 10);
+        var events = EventService.GetEvents("2", null, null, page: 1, pageSize: 10);
 
         // Assert
         Assert.Single(events.Items);
@@ -147,23 +131,21 @@ public class EventServiceTests
     }
 
     [Fact]
-    public void Filter_by_from_date()
+    public async Task Filter_by_from_date()
     {
         // Arrange
-        var service = TestServiceFactory.MakeEventService();
-        ;
         var newEvent = new Event(Guid.NewGuid(), "Тестовое событие", new DateTime(2022, 10, 8),
             new DateTime(2025, 10, 9), 5, "Описание");
         var newEvent2 = new Event(Guid.NewGuid(), "Тестовое событие 2", new DateTime(2023, 10, 8),
             new DateTime(2025, 10, 9), 5, "Описание 2");
         var newEvent3 = new Event(Guid.NewGuid(), "Тестовое событие 3", new DateTime(2024, 10, 8),
             new DateTime(2026, 10, 9), 5, "Описание 3");
-        service.AddEventAsync(newEvent);
-        service.AddEventAsync(newEvent2);
-        service.AddEventAsync(newEvent3);
+        await EventService.AddEventAsync(newEvent);
+        await EventService.AddEventAsync(newEvent2);
+        await EventService.AddEventAsync(newEvent3);
 
         // Act
-        var events = service.GetEvents(null, new DateTime(2023, 1, 1), null, page: 1, pageSize: 10);
+        var events = EventService.GetEvents(null, new DateTime(2023, 1, 1), null, page: 1, pageSize: 10);
 
         // Assert
         Assert.Equal(2, events.Items.Count());
@@ -172,22 +154,21 @@ public class EventServiceTests
     }
 
     [Fact]
-    public void Filter_by_to_date()
+    public async Task Filter_by_to_date()
     {
         // Arrange
-        var service = TestServiceFactory.MakeEventService();
         var newEvent = new Event(Guid.NewGuid(), "Тестовое событие", new DateTime(2022, 10, 8),
             new DateTime(2024, 10, 9), 5, "Описание");
         var newEvent2 = new Event(Guid.NewGuid(), "Тестовое событие 2", new DateTime(2023, 10, 8),
             new DateTime(2025, 10, 9), 5, "Описание 2");
         var newEvent3 = new Event(Guid.NewGuid(), "Тестовое событие 3", new DateTime(2024, 10, 8),
             new DateTime(2026, 10, 9), 5, "Описание 3");
-        service.AddEventAsync(newEvent);
-        service.AddEventAsync(newEvent2);
-        service.AddEventAsync(newEvent3);
+        await EventService.AddEventAsync(newEvent);
+        await EventService.AddEventAsync(newEvent2);
+        await EventService.AddEventAsync(newEvent3);
 
         // Act
-        var events = service.GetEvents(null, null, new DateTime(2025, 12, 31), page: 1, pageSize: 10);
+        var events = EventService.GetEvents(null, null, new DateTime(2025, 12, 31), page: 1, pageSize: 10);
 
         // Assert
         Assert.Equal(2, events.Items.Count());
@@ -196,23 +177,22 @@ public class EventServiceTests
     }
 
     [Fact]
-    public void Paginate()
+    public async Task Paginate()
     {
         // Arrange
-        var service = TestServiceFactory.MakeEventService();
         var newEvent = new Event(Guid.NewGuid(), "Тестовое событие", new DateTime(2022, 10, 8),
             new DateTime(2024, 10, 9), 5, "Описание");
         var newEvent2 = new Event(Guid.NewGuid(), "Тестовое событие 2", new DateTime(2023, 10, 8),
             new DateTime(2025, 10, 9), 5, "Описание 2");
         var newEvent3 = new Event(Guid.NewGuid(), "Тестовое событие 3", new DateTime(2024, 10, 8),
             new DateTime(2026, 10, 9), 5, "Описание 3");
-        service.AddEventAsync(newEvent);
-        service.AddEventAsync(newEvent2);
-        service.AddEventAsync(newEvent3);
+        await EventService.AddEventAsync(newEvent);
+        await EventService.AddEventAsync(newEvent2);
+        await EventService.AddEventAsync(newEvent3);
 
         // Act
-        var result = service.GetEvents(null, null, null, page: 1, pageSize: 2);
-        var result2 = service.GetEvents(null, null, null, page: 2, pageSize: 2);
+        var result = EventService.GetEvents(null, null, null, page: 1, pageSize: 2);
+        var result2 = EventService.GetEvents(null, null, null, page: 2, pageSize: 2);
 
         // Assert
         Assert.Equal(2, result.Items.Count());
@@ -223,22 +203,21 @@ public class EventServiceTests
     }
 
     [Fact]
-    public void Combine_filter()
+    public async Task Combine_filter()
     {
         // Arrange
-        var service = TestServiceFactory.MakeEventService();
         var newEvent = new Event(Guid.NewGuid(), "Тестовое событие", new DateTime(2022, 10, 8),
             new DateTime(2024, 10, 9), 5, "Описание");
         var newEvent2 = new Event(Guid.NewGuid(), "Тестовое событие 2", new DateTime(2023, 10, 8),
             new DateTime(2025, 10, 9), 5, "Описание 2");
         var newEvent3 = new Event(Guid.NewGuid(), "Тестовое событие 3", new DateTime(2024, 10, 8),
             new DateTime(2026, 10, 9), 5, "Описание 3");
-        service.AddEventAsync(newEvent);
-        service.AddEventAsync(newEvent2);
-        service.AddEventAsync(newEvent3);
+        await EventService.AddEventAsync(newEvent);
+        await EventService.AddEventAsync(newEvent2);
+        await EventService.AddEventAsync(newEvent3);
 
         // Act
-        var result = service.GetEvents("3", new DateTime(2023, 1, 1),
+        var result = EventService.GetEvents("3", new DateTime(2023, 1, 1),
             new DateTime(2027, 12, 31), page: 1, pageSize: 10);
 
         // Assert
@@ -247,25 +226,21 @@ public class EventServiceTests
     }
 
     [Fact]
-    public void Get_non_existing_event()
+    public async Task Get_non_existing_event()
     {
-        // Arrange
-        var service = TestServiceFactory.MakeEventService();
-
         // Act + Assert
-        Assert.Throws<NotFoundException>(() => service.GetEventAsync(@Guid.NewGuid()));
+        await Assert.ThrowsAsync<NotFoundException>(() => EventService.GetEventAsync(@Guid.NewGuid()));
     }
 
     [Fact]
-    public void Update_non_existing_event()
+    public async Task Update_non_existing_event()
     {
         // Arrange
-        var service = TestServiceFactory.MakeEventService();
         var @event = new Event(Guid.NewGuid(), "Тестовое событие", new DateTime(2022, 10, 8),
             new DateTime(2024, 10, 9), 5, "Описание");
 
         // Act + Assert
-        Assert.Throws<NotFoundException>(() => service.ChangeEventAsync(@event));
+        await Assert.ThrowsAsync<NotFoundException>(() => EventService.ChangeEventAsync(@event));
     }
 
     [Fact]

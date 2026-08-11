@@ -29,11 +29,8 @@ public class EventService(AppDbContext appDbContext) : IEventService
 
         IQueryable<Event> query = appDbContext.Events;
 
-        if (!string.IsNullOrWhiteSpace(title))
-        {
-            query = query.Where(e =>
-                EF.Functions.ILike(e.Title, $"%{title}%"));
-        }
+        if (title != null)
+            query = query.Where(e => e.Title.Contains(title));
 
         if (from.HasValue)
             query = query.Where(e => e.StartAt >= from.Value);
@@ -61,6 +58,9 @@ public class EventService(AppDbContext appDbContext) : IEventService
 
     public async Task<bool> AddEventAsync(Event @event)
     {
+        if (appDbContext.Events.Any(e => e.Id == @event.Id))
+            return false;
+        
         await appDbContext.Events.AddAsync(@event);
         return await appDbContext.SaveChangesAsync() > 0;
     }
@@ -71,7 +71,7 @@ public class EventService(AppDbContext appDbContext) : IEventService
         if (entity == null)
             throw new NotFoundException(EventNotFoundException);
         
-        appDbContext.Events.Update(@event);
+        entity.Update(@event.Title, @event.Description, @event.StartAt, @event.EndAt);
         await appDbContext.SaveChangesAsync();
     }
 
