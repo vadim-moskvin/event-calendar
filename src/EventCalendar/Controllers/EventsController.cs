@@ -43,9 +43,9 @@ public class EventsController(IEventService eventService, IBookingService bookin
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [Produces("application/json")]
     [HttpGet("{id:guid}")]
-    public ActionResult<GetEventDto> GetEvent([FromRoute] Guid id)
+    public async Task<ActionResult<GetEventDto>> GetEvent([FromRoute] Guid id)
     {
-        var @event = eventService.GetEvent(id);
+        var @event = await eventService.GetEventAsync(id);
         return Ok(@event.ToGetEventDto());
     }
 
@@ -64,11 +64,11 @@ public class EventsController(IEventService eventService, IBookingService bookin
     [Produces("application/json")]
     [Consumes("application/json")]
     [HttpPost]
-    public IActionResult Post([FromBody] EventDto eventDto)
+    public async Task<IActionResult> Post([FromBody] EventDto eventDto)
     {
         var @event = eventDto.ToEntity();
 
-        while (!eventService.AddEvent(@event))
+        while (!await eventService.AddEventAsync(@event))
         {
             // повторяем пока не сгенерируем уникальный идентификатор
             @event = eventDto.ToEntity();
@@ -93,7 +93,7 @@ public class EventsController(IEventService eventService, IBookingService bookin
     public IActionResult Put([FromRoute] Guid id, [FromBody] EventDto eventDto)
     {
         var @event = eventDto.ToEntity(id);
-        eventService.ChangeEvent(@event);
+        eventService.ChangeEventAsync(@event);
         return Ok();
     }
 
@@ -109,7 +109,7 @@ public class EventsController(IEventService eventService, IBookingService bookin
     [HttpDelete("{id:guid}")]
     public IActionResult Delete(Guid id)
     {
-        eventService.RemoveEvent(id);
+        eventService.RemoveEventAsync(id);
         return Ok();
     }
 
@@ -127,7 +127,7 @@ public class EventsController(IEventService eventService, IBookingService bookin
     public async Task<IActionResult> BookAsync(Guid id)
     {
         var booking = await bookingService.CreateBookingAsync(id);
-        return AcceptedAtAction(nameof(GetBooking), new { id = booking.Id }, booking);
+        return AcceptedAtAction(nameof(GetBooking), new { id = booking.Id }, booking.ToDto());
     }
 
     /// <summary>

@@ -1,26 +1,20 @@
-﻿using EventCalendar.Models;
+﻿using EventCalendar.DataAccess;
+using EventCalendar.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace EventCalendar.Services;
 
-public class BookingProcessor : BackgroundService
+public class BookingProcessor(IServiceScopeFactory serviceScopeFactory, ILogger<BookingProcessor> logger)
+    : BackgroundService
 {
-    private readonly SemaphoreSlim _processingSemaphore = new(1, 1);
-    private readonly IBookingStore _bookingStore;
-    private readonly IEventStore _eventStore;
-    private readonly ILogger<BookingProcessor> _logger;
-
-    public BookingProcessor(IBookingStore bookingStore, IEventStore eventStore, ILogger<BookingProcessor> logger)
-    {
-        _bookingStore = bookingStore;
-        _eventStore = eventStore;
-        _logger = logger;
-    }
-
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         while (!stoppingToken.IsCancellationRequested)
         {
-            var bookings = (await _bookingStore.GetPendingBookingsAsync()).ToList();
+            using var scope = serviceScopeFactory.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            var bookings = await context.Bookings.Where(x => x.Status == BookingStatus.Pending).Select(x => x.Id)
+                .ToArrayAsync(cancellationToken: stoppingToken);
             var tasks = bookings.Select(booking => ProcessBookingAsync(booking, stoppingToken));
             await Task.WhenAll(tasks);
 
@@ -28,38 +22,36 @@ public class BookingProcessor : BackgroundService
         }
     }
 
-    private async Task ProcessBookingAsync(Booking booking, CancellationToken stoppingToken)
+    private async Task ProcessBookingAsync(Guid bookingId, CancellationToken stoppingToken)
     {
+        using var scope = serviceScopeFactory.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
         await Task.Delay(2000, stoppingToken);
 
-        await _processingSemaphore.WaitAsync(stoppingToken);
-
-        var @event = _eventStore.Get(booking.EventId);
+        var booking = await context.Bookings.Include(x => x.Event)
+            .FirstAsync(x => x.Id == bookingId, stoppingToken);
         try
         {
-            if (@event != null)
+            if (booking.Event != null)
             {
                 booking.Confirm();
             }
             else
             {
                 booking.Reject();
-                _logger.LogWarning("Event not found for booking {BookingId}", booking.Id);
+                logger.LogWarning("Event not found for booking {BookingId}", booking.Id);
             }
         }
         catch (Exception)
         {
             booking.Reject();
-            if (@event != null)
-            {
-                @event.ReleaseSeats();
-                _eventStore.Update(@event);
-            }
+            booking.Event?.ReleaseSeats();
         }
         finally
         {
-            await _bookingStore.CreateOrUpdateBookingAsync(booking);
-            _processingSemaphore.Release();
+            context.Bookings.Update(booking);
+            await context.SaveChangesAsync(stoppingToken);
         }
     }
 }

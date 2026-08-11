@@ -7,6 +7,10 @@ public class Booking
     private const string PendingStatusMessage =
         $"Можно подтвердить только событие в статусе {nameof(BookingStatus.Pending)}";
 
+    private Booking()
+    {
+    }
+
     private Booking(Guid id, Guid eventId, DateTime createdAt)
     {
         Id = id;
@@ -23,6 +27,8 @@ public class Booking
     public DateTime CreatedAt { get; }
 
     public DateTime? ProcessedAt { get; private set; }
+    
+    public Event Event { get; private set; }
 
     public static Booking MakeNew(Guid eventId)
     {

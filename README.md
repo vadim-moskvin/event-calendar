@@ -4,12 +4,27 @@
 - Поддержка CRUD операций для событий
 - Валидация входных данных
 - Реализация Swagger для документации API
+## Требования
+Для запуска приложения требуется PostgreSQL.
+### Необязательно
+Docker требуется для запуска PostgreSQL в среде разработки из конфигурационного файла
 ## Сборка
-dotnet build src/EventCalendar.sln
+```dotnet build src/EventCalendar.sln```
 ## Запуск
-dotnet run src/EventCalendar.sln
+```dotnet run src/EventCalendar.sln```
+
+Строка подключения настривается в файле appsettings.json.
+
+База данны создаётся автоматически при запуске через EnsureCreated.
+
+В среде разработки предварительно можно использовать Docker для развёртывания PostgreSQL из конфигурационного файла:
+
+```docker compose -f src/docker-compose_.yml up -d```
 ## Тесты
-dotnet test src/EventCalendar.sln
+```dotnet test src/EventCalendar.sln```
+
+В тестах вместо PostgreSQL используется InMemory-провайдер.
+
 ## Endpoints
 ### GET /events
 
