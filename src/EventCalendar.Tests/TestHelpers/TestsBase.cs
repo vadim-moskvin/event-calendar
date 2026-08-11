@@ -7,6 +7,8 @@ namespace EventCalendar.Tests.TestHelpers;
 
 public abstract class TestsBase
 {
+    protected readonly AppDbContext DbContext;
+    protected readonly ServiceProvider ServiceProvider;
     protected readonly IEventService EventService;
     protected readonly IBookingService BookingService;
 
@@ -14,14 +16,16 @@ public abstract class TestsBase
     {
         var services = new ServiceCollection();
 
+        var dbName = Guid.NewGuid().ToString();
         services.AddDbContext<AppDbContext>(options =>
-            options.UseInMemoryDatabase($"TestDb_{Guid.NewGuid()}"));
+            options.UseInMemoryDatabase($"TestDb_{dbName}"));
 
         services.AddScoped<IEventService, EventService>();
         services.AddScoped<IBookingService, BookingService>();
 
-        IServiceProvider serviceProvider = services.BuildServiceProvider();
-        EventService = serviceProvider.GetRequiredService<IEventService>();
-        BookingService = serviceProvider.GetRequiredService<IBookingService>();
+        ServiceProvider = services.BuildServiceProvider();
+        EventService = ServiceProvider.GetRequiredService<IEventService>();
+        BookingService = ServiceProvider.GetRequiredService<IBookingService>();
+        DbContext = ServiceProvider.GetRequiredService<AppDbContext>();
     }
 }

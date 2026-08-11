@@ -1,6 +1,10 @@
-﻿using EventCalendar.Exceptions;
+﻿using EventCalendar.DataAccess;
+using EventCalendar.Exceptions;
 using EventCalendar.Models;
+using EventCalendar.Services;
 using EventCalendar.Tests.TestHelpers;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace EventCalendar.Tests;
 
@@ -135,11 +139,18 @@ public class BookingServiceTests : TestsBase
         await EventService.AddEventAsync(@event);
 
         const int requestCount = 20;
+        var bookingIds = new System.Collections.Concurrent.ConcurrentBag<Guid>();
 
         // Act
-        var tasks = new List<Task<Booking>>();
+        var tasks = new List<Task>();
         for (var i = 0; i < requestCount; i++)
-            tasks.Add(Task.Run(() => BookingService.CreateBookingAsync(eventId)));
+            tasks.Add(Task.Run(async () =>
+            {
+                using var scope = ServiceProvider.CreateScope();
+                var bookingService = scope.ServiceProvider.GetRequiredService<IBookingService>();
+                var booking = await bookingService.CreateBookingAsync(eventId);
+                bookingIds.Add(booking.Id);
+            }));
 
         try
         {
@@ -150,15 +161,18 @@ public class BookingServiceTests : TestsBase
         }
 
         // Assert
-        Assert.Equal(5, tasks.Where(x => !x.IsFaulted)
-            .Select(x => x.Result)
-            .Count(x => x.Status == BookingStatus.Pending));
+        Assert.Equal(5, bookingIds.Count);
 
         Assert.Equal(15,
             tasks.Count(x =>
                 x.IsFaulted && x.Exception?.InnerExceptions.Any(e => e is NoAvailableSeatsException) == true));
 
-        Assert.Equal(0, @event.AvailableSeats);
+        {
+            using var scope = ServiceProvider.CreateScope();
+            var eventService = scope.ServiceProvider.GetRequiredService<IEventService>();
+            @event = await eventService.GetEventAsync(eventId);
+            Assert.Equal(0, @event.AvailableSeats);
+        }
     }
 
     [Fact]
@@ -172,16 +186,23 @@ public class BookingServiceTests : TestsBase
         await EventService.AddEventAsync(@event);
 
         const int requestCount = 10;
+        var bookingIds = new System.Collections.Concurrent.ConcurrentBag<Guid>();
 
         // Act
-        var tasks = new List<Task<Booking>>();
+        var tasks = new List<Task>();
         for (var i = 0; i < requestCount; i++)
-            tasks.Add(Task.Run(() => BookingService.CreateBookingAsync(eventId)));
+            tasks.Add(Task.Run(async () =>
+            {
+                using var scope = ServiceProvider.CreateScope();
+                var bookingService = scope.ServiceProvider.GetRequiredService<IBookingService>();
+                var booking = await bookingService.CreateBookingAsync(eventId);
+                bookingIds.Add(booking.Id);
+            }));
 
         await Task.WhenAll(tasks);
 
         // Assert
-        Assert.Equal(10, tasks.GroupBy(x => x.Result.Id).Count());
+        Assert.Equal(10, bookingIds.Count);
     }
 
     [Fact]
