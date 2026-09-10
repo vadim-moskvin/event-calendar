@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventCalendar", "EventCalen
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventCalendar.Tests", "EventCalendar.Tests\EventCalendar.Tests.csproj", "{38946F40-39C4-4570-940C-E787D02716C6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventCalendar.IntegrationTests", "EventCalendar.IntegrationTests\EventCalendar.IntegrationTests.csproj", "{960F65A8-CBBF-4113-A870-B294803CF0F1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{38946F40-39C4-4570-940C-E787D02716C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{38946F40-39C4-4570-940C-E787D02716C6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{38946F40-39C4-4570-940C-E787D02716C6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{960F65A8-CBBF-4113-A870-B294803CF0F1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{960F65A8-CBBF-4113-A870-B294803CF0F1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{960F65A8-CBBF-4113-A870-B294803CF0F1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{960F65A8-CBBF-4113-A870-B294803CF0F1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
