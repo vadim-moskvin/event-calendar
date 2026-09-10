@@ -9,7 +9,7 @@ public class EventRepository(AppDbContext appDbContext) : IEventRepository
     public async Task<PaginatedResult<Event>> GetEventsAsync(string? title, DateTime? from, DateTime? to, int page,
         int pageSize)
     {
-        IQueryable<Event> query = appDbContext.Events;
+        IQueryable<Event> query = appDbContext.Events.Include(x => x.Bookings);
 
         if (title != null)
             query = query.Where(e => e.Title.Contains(title));
@@ -35,7 +35,9 @@ public class EventRepository(AppDbContext appDbContext) : IEventRepository
 
     public async Task<Event?> GetEventAsync(Guid id)
     {
-        return await appDbContext.Events.FirstOrDefaultAsync(x => x.Id == id);
+        return await appDbContext.Events
+            .Include(x => x.Bookings)
+            .FirstOrDefaultAsync(x => x.Id == id);
     }
 
     public async Task<Event> CreateEventAsync(Event eventToCreate)

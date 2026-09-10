@@ -22,6 +22,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\EventCalendar.Tests\EventCalendar.Tests.csproj" />
       <ProjectReference Include="..\EventCalendar\EventCalendar.csproj" />
     </ItemGroup>
 

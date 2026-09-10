@@ -93,7 +93,15 @@ public class EventServiceTests : TestsBase
 
         // Assert
         var @event = await EventService.GetEventAsync(newEvent.Id);
-        Assert.Equivalent(newEvent2, @event);
+        Assert.NotNull(@event);
+        Assert.Equal(newEvent2.Id, @event.Id);
+        Assert.Equal(newEvent2.Title, @event.Title);
+        Assert.Equal(newEvent2.Description, @event.Description);
+        Assert.Equal(newEvent2.StartAt, @event.StartAt);
+        Assert.Equal(newEvent2.EndAt, @event.EndAt);
+
+        Assert.Equal(newEvent.TotalSeats, @event.TotalSeats);
+        Assert.Equal(newEvent.AvailableSeats, @event.AvailableSeats);
     }
 
     [Fact]

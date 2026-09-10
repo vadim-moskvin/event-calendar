@@ -8,7 +8,9 @@ public class BookingRepository(AppDbContext appDbContext) : IBookingRepository
 {
     public async Task<Booking?> GetBookingAsync(Guid id)
     {
-        return await appDbContext.Bookings.FirstOrDefaultAsync(x => x.Id == id);
+        return await appDbContext.Bookings
+            .Include(x => x.Event)
+            .FirstOrDefaultAsync(x => x.Id == id);
     }
 
     public async Task<Booking> CreateBookingAsync(Booking bookingToCreate)
