@@ -1,11 +1,10 @@
-﻿using EventCalendar.DataAccess;
-using EventCalendar.Exceptions;
+﻿using EventCalendar.Exceptions;
 using EventCalendar.Models;
-using Microsoft.EntityFrameworkCore;
+using EventCalendar.Repositories;
 
 namespace EventCalendar.Services;
 
-public class BookingService(IEventService eventService, AppDbContext appDbContext) : IBookingService
+public class BookingService(IEventService eventService, IBookingRepository bookingRepository) : IBookingService
 {
     private const string BookingNotFoundException = "Бронь не найдена";
 
@@ -21,9 +20,9 @@ public class BookingService(IEventService eventService, AppDbContext appDbContex
             if (!@event.TryReserveSeats())
                 throw new NoAvailableSeatsException();
             var booking = Booking.MakeNew(eventId);
-            appDbContext.Bookings.Add(booking);
-            await appDbContext.SaveChangesAsync();
-        
+            await bookingRepository.CreateBookingAsync(booking);
+            await bookingRepository.SaveChangesAsync();
+
             return booking;
         }
         finally
@@ -34,7 +33,7 @@ public class BookingService(IEventService eventService, AppDbContext appDbContex
 
     public async Task<Booking> GetBookingByIdAsync(Guid bookingId)
     {
-        return await appDbContext.Bookings.FirstOrDefaultAsync(x => x.Id == bookingId) ??
+        return await bookingRepository.GetBookingAsync(bookingId) ??
                throw new NotFoundException(BookingNotFoundException);
     }
 }

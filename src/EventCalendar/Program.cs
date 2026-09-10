@@ -1,6 +1,7 @@
 using System.Reflection;
 using EventCalendar.DataAccess;
 using EventCalendar.Middlewares;
+using EventCalendar.Repositories;
 using EventCalendar.Services;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,8 +11,10 @@ var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
                        ?? throw new InvalidOperationException("Connection string 'Default' not found.");
 
-builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString)); 
+builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString));
 
+builder.Services.AddScoped<IEventRepository, EventRepository>();
+builder.Services.AddScoped<IBookingRepository, BookingRepository>();
 builder.Services.AddScoped<IEventService, EventService>();
 builder.Services.AddScoped<IBookingService, BookingService>();
 builder.Services.AddControllers();
