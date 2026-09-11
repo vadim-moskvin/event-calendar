@@ -26,11 +26,12 @@ public class EventsController(IEventService eventService, IBookingService bookin
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [Produces("application/json")]
     [HttpGet]
-    public ActionResult<IEnumerable<GetEventDto>> GetEvents([FromQuery] string? title, [FromQuery] DateTime? from,
+    public async Task<ActionResult<IEnumerable<GetEventDto>>> GetEvents([FromQuery] string? title, [FromQuery] DateTime? from,
         [FromQuery] DateTime? to, [FromQuery] int page = EventService.DefaultPage,
         [FromQuery] int pageSize = EventService.DefaultPageSize)
     {
-        return Ok(eventService.GetEvents(title, from, to, page, pageSize).ToGetEventDto());
+        var events = await eventService.GetEventsAsync(title, from, to, page, pageSize);
+        return Ok(events.ToGetEventDto());
     }
 
     /// <summary>

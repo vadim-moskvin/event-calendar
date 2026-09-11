@@ -36,7 +36,7 @@ public class EventServiceTests : TestsBase
         var result = await EventService.AddEventAsync(newEvent);
 
         // Assert
-        var events = EventService.GetEvents(null, null, null, page: 1, pageSize: 10);
+        var events = await EventService.GetEventsAsync(null, null, null, page: 1, pageSize: 10);
         Assert.False(result);
         Assert.Single(events.Items);
         Assert.Equivalent(newEvent, events.Items.First());
@@ -54,7 +54,7 @@ public class EventServiceTests : TestsBase
         await EventService.AddEventAsync(newEvent2);
 
         // Act
-        var events = EventService.GetEvents(null, null, null, page: 1, pageSize: 10);
+        var events = await EventService.GetEventsAsync(null, null, null, page: 1, pageSize: 10);
 
         // Assert
         Assert.Equal(2, events.Items.Count());
@@ -93,7 +93,15 @@ public class EventServiceTests : TestsBase
 
         // Assert
         var @event = await EventService.GetEventAsync(newEvent.Id);
-        Assert.Equivalent(newEvent2, @event);
+        Assert.NotNull(@event);
+        Assert.Equal(newEvent2.Id, @event.Id);
+        Assert.Equal(newEvent2.Title, @event.Title);
+        Assert.Equal(newEvent2.Description, @event.Description);
+        Assert.Equal(newEvent2.StartAt, @event.StartAt);
+        Assert.Equal(newEvent2.EndAt, @event.EndAt);
+
+        Assert.Equal(newEvent.TotalSeats, @event.TotalSeats);
+        Assert.Equal(newEvent.AvailableSeats, @event.AvailableSeats);
     }
 
     [Fact]
@@ -123,7 +131,7 @@ public class EventServiceTests : TestsBase
         await EventService.AddEventAsync(newEvent2);
 
         // Act
-        var events = EventService.GetEvents("2", null, null, page: 1, pageSize: 10);
+        var events = await EventService.GetEventsAsync("2", null, null, page: 1, pageSize: 10);
 
         // Assert
         Assert.Single(events.Items);
@@ -145,7 +153,7 @@ public class EventServiceTests : TestsBase
         await EventService.AddEventAsync(newEvent3);
 
         // Act
-        var events = EventService.GetEvents(null, new DateTime(2023, 1, 1), null, page: 1, pageSize: 10);
+        var events = await EventService.GetEventsAsync(null, new DateTime(2023, 1, 1), null, page: 1, pageSize: 10);
 
         // Assert
         Assert.Equal(2, events.Items.Count());
@@ -168,7 +176,7 @@ public class EventServiceTests : TestsBase
         await EventService.AddEventAsync(newEvent3);
 
         // Act
-        var events = EventService.GetEvents(null, null, new DateTime(2025, 12, 31), page: 1, pageSize: 10);
+        var events = await EventService.GetEventsAsync(null, null, new DateTime(2025, 12, 31), page: 1, pageSize: 10);
 
         // Assert
         Assert.Equal(2, events.Items.Count());
@@ -191,8 +199,8 @@ public class EventServiceTests : TestsBase
         await EventService.AddEventAsync(newEvent3);
 
         // Act
-        var result = EventService.GetEvents(null, null, null, page: 1, pageSize: 2);
-        var result2 = EventService.GetEvents(null, null, null, page: 2, pageSize: 2);
+        var result = await EventService.GetEventsAsync(null, null, null, page: 1, pageSize: 2);
+        var result2 = await EventService.GetEventsAsync(null, null, null, page: 2, pageSize: 2);
 
         // Assert
         Assert.Equal(2, result.Items.Count());
@@ -217,7 +225,7 @@ public class EventServiceTests : TestsBase
         await EventService.AddEventAsync(newEvent3);
 
         // Act
-        var result = EventService.GetEvents("3", new DateTime(2023, 1, 1),
+        var result = await EventService.GetEventsAsync("3", new DateTime(2023, 1, 1),
             new DateTime(2027, 12, 31), page: 1, pageSize: 10);
 
         // Assert

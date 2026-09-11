@@ -13,17 +13,29 @@ Docker требуется для запуска PostgreSQL в среде раз�
 ## Запуск
 ```dotnet run src/EventCalendar.sln```
 
-Строка подключения настривается в файле appsettings.json.
+Строка подключения настраивается в файле appsettings.json.
 
-База данны создаётся автоматически при запуске через EnsureCreated.
+База данных создаётся автоматически при запуске посредством миграций EF Core.
+
+### Разработка
 
 В среде разработки предварительно можно использовать Docker для развёртывания PostgreSQL из конфигурационного файла:
 
 ```docker compose -f src/docker-compose_.yml up -d```
+
+Для создания миграции нужно выполнить:
+
+```dotnet ef migrations add <имя миграции> --project src/EventCalendar```
+
+Для применения миграций нужно выполнить:
+
+```dotnet ef database update --project src/EventCalendar```
+
 ## Тесты
 ```dotnet test src/EventCalendar.sln```
 
-В тестах вместо PostgreSQL используется InMemory-провайдер.
+В unit-тестах вместо PostgreSQL используется InMemory-провайдер. 
+В интеграционных тестах используется PostgreSQL. Для запуска требуется Docker.
 
 ## Endpoints
 ### GET /events

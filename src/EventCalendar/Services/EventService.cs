@@ -1,11 +1,10 @@
-﻿using EventCalendar.DataAccess;
-using EventCalendar.Exceptions;
+﻿using EventCalendar.Exceptions;
 using EventCalendar.Models;
-using Microsoft.EntityFrameworkCore;
+using EventCalendar.Repositories;
 
 namespace EventCalendar.Services;
 
-public class EventService(AppDbContext appDbContext) : IEventService
+public class EventService(IEventRepository eventRepository) : IEventService
 {
     private const string DateOutOfRangeException = "Параметр {0} не может быть больше параметра {1}.";
     private const string PageOutOfRangeException = "Номер страницы должен быть больше ноля.";
@@ -15,8 +14,8 @@ public class EventService(AppDbContext appDbContext) : IEventService
     public const int DefaultPage = 1;
     public const int DefaultPageSize = 10;
 
-    public PaginatedResult<Event> GetEvents(string? title, DateTime? from, DateTime? to, int page = DefaultPage,
-        int pageSize = DefaultPageSize)
+    public async Task<PaginatedResult<Event>> GetEventsAsync(string? title, DateTime? from, DateTime? to,
+        int page = DefaultPage, int pageSize = DefaultPageSize)
     {
         if (from.HasValue && to.HasValue && from.Value > to.Value)
             throw new BadRequestException(string.Format(DateOutOfRangeException, nameof(from), nameof(to)));
@@ -27,62 +26,38 @@ public class EventService(AppDbContext appDbContext) : IEventService
         if (pageSize < 1)
             throw new BadRequestException(PageSizeOutOfRangeException);
 
-        IQueryable<Event> query = appDbContext.Events;
-
-        if (title != null)
-            query = query.Where(e => e.Title.Contains(title));
-
-        if (from.HasValue)
-            query = query.Where(e => e.StartAt >= from.Value);
-
-        if (to.HasValue)
-            query = query.Where(e => e.EndAt <= to.Value);
-
-        var filtered = query.ToArray();
-
-        var items = query
-            .OrderBy(c => c.StartAt)
-            .Skip((page - 1) * pageSize)
-            .Take(pageSize);
-
-        var totalPages = (int)Math.Ceiling((double)filtered.Length / pageSize);
-
-        return new PaginatedResult<Event>(items, page, totalPages, filtered.Length);
+        return await eventRepository.GetEventsAsync(title, from, to, page, pageSize);
     }
 
     public async Task<Event> GetEventAsync(Guid id)
     {
-        return await appDbContext.Events.FirstOrDefaultAsync(x => x.Id == id) ??
-               throw new NotFoundException(EventNotFoundException);
+        return await eventRepository.GetEventAsync(id) ?? throw new NotFoundException(EventNotFoundException);
     }
 
     public async Task<bool> AddEventAsync(Event @event)
     {
-        if (appDbContext.Events.Any(e => e.Id == @event.Id))
+        if (await eventRepository.GetEventAsync(@event.Id) != null)
             return false;
-        
-        await appDbContext.Events.AddAsync(@event);
-        return await appDbContext.SaveChangesAsync() > 0;
+
+        await eventRepository.CreateEventAsync(@event);
+        return await eventRepository.SaveChangesAsync() > 0;
     }
 
     public async Task ChangeEventAsync(Event @event)
     {
-        var entity = await appDbContext.Events.FirstOrDefaultAsync(x => x.Id == @event.Id);
+        var entity = await eventRepository.GetEventAsync(@event.Id);
         if (entity == null)
             throw new NotFoundException(EventNotFoundException);
-        
+
         entity.Update(@event.Title, @event.Description, @event.StartAt, @event.EndAt);
-        await appDbContext.SaveChangesAsync();
+        await eventRepository.SaveChangesAsync();
     }
 
     public async Task RemoveEventAsync(Guid id)
     {
-        var entity = await appDbContext.Events.FindAsync(id);
-        
-        if (entity == null)
+        if (!await eventRepository.RemoveEventAsync(id))
             throw new NotFoundException(EventNotFoundException);
-        
-        appDbContext.Events.Remove(entity);
-        await appDbContext.SaveChangesAsync();
+
+        await eventRepository.SaveChangesAsync();
     }
 }
