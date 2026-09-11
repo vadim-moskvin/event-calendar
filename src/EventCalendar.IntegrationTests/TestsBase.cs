@@ -35,6 +35,6 @@ public class TestsBase : IAsyncLifetime
         NpgsqlConnection.ClearAllPools();
         await using var context = CreateContext();
         await context.Database.EnsureDeletedAsync();
-        await context.Database.EnsureCreatedAsync();
+        await context.Database.MigrateAsync();
     }
 }

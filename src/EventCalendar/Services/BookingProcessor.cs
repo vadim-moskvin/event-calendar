@@ -1,6 +1,4 @@
-﻿using EventCalendar.DataAccess;
-using EventCalendar.Models;
-using Microsoft.EntityFrameworkCore;
+﻿using EventCalendar.Repositories;
 
 namespace EventCalendar.Services;
 
@@ -12,9 +10,10 @@ public class BookingProcessor(IServiceScopeFactory serviceScopeFactory, ILogger<
         while (!stoppingToken.IsCancellationRequested)
         {
             using var scope = serviceScopeFactory.CreateScope();
-            var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-            var bookings = await context.Bookings.Where(x => x.Status == BookingStatus.Pending).Select(x => x.Id)
-                .ToArrayAsync(cancellationToken: stoppingToken);
+            var bookingRepository = scope.ServiceProvider.GetRequiredService<IBookingRepository>();
+            var bookings = (await bookingRepository.GetPendingBookingsAsync(stoppingToken))
+                .Select(x => x.Id)
+                .ToArray();
             var tasks = bookings.Select(booking => ProcessBookingAsync(booking, stoppingToken));
             await Task.WhenAll(tasks);
 
@@ -25,12 +24,11 @@ public class BookingProcessor(IServiceScopeFactory serviceScopeFactory, ILogger<
     private async Task ProcessBookingAsync(Guid bookingId, CancellationToken stoppingToken)
     {
         using var scope = serviceScopeFactory.CreateScope();
-        var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var bookingRepository = scope.ServiceProvider.GetRequiredService<IBookingRepository>();
 
         await Task.Delay(2000, stoppingToken);
 
-        var booking = await context.Bookings.Include(x => x.Event)
-            .FirstAsync(x => x.Id == bookingId, stoppingToken);
+        var booking = await bookingRepository.GetBookingAsync(bookingId);
         try
         {
             if (booking.Event != null)
@@ -50,8 +48,7 @@ public class BookingProcessor(IServiceScopeFactory serviceScopeFactory, ILogger<
         }
         finally
         {
-            context.Bookings.Update(booking);
-            await context.SaveChangesAsync(stoppingToken);
+            await bookingRepository.SaveChangesAsync(stoppingToken);
         }
     }
 }

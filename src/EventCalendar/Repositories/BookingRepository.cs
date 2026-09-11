@@ -13,6 +13,14 @@ public class BookingRepository(AppDbContext appDbContext) : IBookingRepository
             .FirstOrDefaultAsync(x => x.Id == id);
     }
 
+    public async Task<IReadOnlyList<Booking>> GetPendingBookingsAsync(CancellationToken ct = default)
+    {
+        return await appDbContext.Bookings
+            .Include(x => x.Event)
+            .Where(x => x.Status == BookingStatus.Pending)
+            .ToListAsync(cancellationToken: ct);
+    }
+
     public async Task<Booking> CreateBookingAsync(Booking bookingToCreate)
     {
         await appDbContext.Bookings.AddAsync(bookingToCreate);
