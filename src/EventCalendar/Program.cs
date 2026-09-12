@@ -1,4 +1,6 @@
 using System.Reflection;
+using EventCalendar.Application.Repositories;
+using EventCalendar.Application.Services;
 using EventCalendar.DataAccess;
 using EventCalendar.Middlewares;
 using EventCalendar.Repositories;
@@ -17,6 +19,7 @@ builder.Services.AddScoped<IEventRepository, EventRepository>();
 builder.Services.AddScoped<IBookingRepository, BookingRepository>();
 builder.Services.AddScoped<IEventService, EventService>();
 builder.Services.AddScoped<IBookingService, BookingService>();
+builder.Services.AddScoped<IBookingProcessingService, BookingProcessingService>();
 builder.Services.AddControllers();
 builder.Services.AddHostedService<BookingProcessor>();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi

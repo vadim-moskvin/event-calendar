@@ -1,8 +1,8 @@
-﻿using EventCalendar.Domain.Exceptions;
+﻿using EventCalendar.Application.Repositories;
+using EventCalendar.Domain.Exceptions;
 using EventCalendar.Domain.Models;
-using EventCalendar.Repositories;
 
-namespace EventCalendar.Services;
+namespace EventCalendar.Application.Services;
 
 public class EventService(IEventRepository eventRepository) : IEventService
 {

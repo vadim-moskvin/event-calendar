@@ -1,54 +1,40 @@
-﻿using EventCalendar.Repositories;
+﻿using EventCalendar.Application.Repositories;
+using EventCalendar.Application.Services;
 
 namespace EventCalendar.Services;
 
-public class BookingProcessor(IServiceScopeFactory serviceScopeFactory, ILogger<BookingProcessor> logger)
-    : BackgroundService
+public sealed class BookingProcessor(IServiceScopeFactory scopeFactory) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         while (!stoppingToken.IsCancellationRequested)
         {
-            using var scope = serviceScopeFactory.CreateScope();
-            var bookingRepository = scope.ServiceProvider.GetRequiredService<IBookingRepository>();
-            var bookings = (await bookingRepository.GetPendingBookingsAsync(stoppingToken))
-                .Select(x => x.Id)
-                .ToArray();
-            var tasks = bookings.Select(booking => ProcessBookingAsync(booking, stoppingToken));
+            Guid[] ids;
+
+            using (var scope = scopeFactory.CreateScope())
+            {
+                var repository = scope.ServiceProvider
+                    .GetRequiredService<IBookingRepository>();
+
+                ids = (await repository.GetPendingBookingsAsync(stoppingToken))
+                    .Select(x => x.Id)
+                    .ToArray();
+            }
+
+            var tasks = ids.Select(id => ProcessAsync(id, stoppingToken));
             await Task.WhenAll(tasks);
 
             await Task.Delay(TimeSpan.FromSeconds(2), stoppingToken);
         }
     }
 
-    private async Task ProcessBookingAsync(Guid bookingId, CancellationToken stoppingToken)
+    private async Task ProcessAsync(Guid id, CancellationToken ct)
     {
-        using var scope = serviceScopeFactory.CreateScope();
-        var bookingRepository = scope.ServiceProvider.GetRequiredService<IBookingRepository>();
+        using var scope = scopeFactory.CreateScope();
 
-        await Task.Delay(2000, stoppingToken);
+        var service = scope.ServiceProvider
+            .GetRequiredService<IBookingProcessingService>();
 
-        var booking = await bookingRepository.GetBookingAsync(bookingId);
-        try
-        {
-            if (booking.Event != null)
-            {
-                booking.Confirm();
-            }
-            else
-            {
-                booking.Reject();
-                logger.LogWarning("Event not found for booking {BookingId}", booking.Id);
-            }
-        }
-        catch (Exception)
-        {
-            booking.Reject();
-            booking.Event?.ReleaseSeats();
-        }
-        finally
-        {
-            await bookingRepository.SaveChangesAsync(stoppingToken);
-        }
+        await service.ProcessAsync(id, ct);
     }
 }

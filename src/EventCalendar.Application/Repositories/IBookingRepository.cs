@@ -1,6 +1,6 @@
 using EventCalendar.Domain.Models;
 
-namespace EventCalendar.Repositories;
+namespace EventCalendar.Application.Repositories;
 
 public interface IBookingRepository
 {

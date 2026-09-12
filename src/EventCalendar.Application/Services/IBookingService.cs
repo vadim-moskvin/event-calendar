@@ -1,6 +1,6 @@
 ﻿using EventCalendar.Domain.Models;
 
-namespace EventCalendar.Services;
+namespace EventCalendar.Application.Services;
 
 public interface IBookingService
 {
