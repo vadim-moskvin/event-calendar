@@ -1,4 +1,4 @@
-﻿namespace EventCalendar.Models;
+﻿namespace EventCalendar.Domain.Models;
 
 public enum BookingStatus
 {

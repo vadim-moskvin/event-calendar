@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace EventCalendar.Models;
+namespace EventCalendar.Domain.Models;
 
 public class Event
 {

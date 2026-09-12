@@ -1,5 +1,5 @@
 using EventCalendar.DataAccess;
-using EventCalendar.Models;
+using EventCalendar.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace EventCalendar.Repositories;

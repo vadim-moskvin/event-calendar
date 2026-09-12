@@ -1,6 +1,6 @@
-﻿using EventCalendar.Exceptions;
+﻿using EventCalendar.Domain.Exceptions;
 
-namespace EventCalendar.Models;
+namespace EventCalendar.Domain.Models;
 
 public class Booking
 {

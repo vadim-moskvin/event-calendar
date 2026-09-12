@@ -1,4 +1,4 @@
-using EventCalendar.Models;
+using EventCalendar.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

@@ -1,5 +1,4 @@
 ﻿using EventCalendar.Controllers.Dtos;
-using EventCalendar.Models;
 using EventCalendar.Services;
 using Microsoft.AspNetCore.Mvc;
 

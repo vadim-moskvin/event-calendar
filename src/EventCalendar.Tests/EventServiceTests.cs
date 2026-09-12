@@ -1,5 +1,5 @@
-﻿using EventCalendar.Exceptions;
-using EventCalendar.Models;
+﻿using EventCalendar.Domain.Exceptions;
+using EventCalendar.Domain.Models;
 using EventCalendar.Tests.TestHelpers;
 
 namespace EventCalendar.Tests;

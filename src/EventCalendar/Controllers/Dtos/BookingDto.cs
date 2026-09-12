@@ -1,6 +1,4 @@
-﻿using EventCalendar.Models;
-
-namespace EventCalendar.Controllers.Dtos;
+﻿namespace EventCalendar.Controllers.Dtos;
 
 public class BookingDto
 {

@@ -1,4 +1,4 @@
-﻿using EventCalendar.Models;
+﻿using EventCalendar.Domain.Models;
 
 namespace EventCalendar.Controllers.Dtos;
 

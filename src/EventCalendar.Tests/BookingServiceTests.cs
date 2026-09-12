@@ -1,6 +1,6 @@
 ﻿using EventCalendar.DataAccess;
-using EventCalendar.Exceptions;
-using EventCalendar.Models;
+using EventCalendar.Domain.Exceptions;
+using EventCalendar.Domain.Models;
 using EventCalendar.Services;
 using EventCalendar.Tests.TestHelpers;
 using Microsoft.EntityFrameworkCore;
