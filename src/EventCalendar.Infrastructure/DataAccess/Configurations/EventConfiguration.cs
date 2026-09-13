@@ -2,7 +2,7 @@ using EventCalendar.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace EventCalendar.DataAccess.Configurations;
+namespace EventCalendar.Infrastructure.DataAccess.Configurations;
 
 public class EventConfiguration : IEntityTypeConfiguration<Event>
 {

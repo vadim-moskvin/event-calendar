@@ -1,5 +1,4 @@
 ﻿using EventCalendar.Application.Services;
-using EventCalendar.DataAccess;
 using EventCalendar.Domain.Exceptions;
 using EventCalendar.Domain.Models;
 using EventCalendar.Tests.TestHelpers;

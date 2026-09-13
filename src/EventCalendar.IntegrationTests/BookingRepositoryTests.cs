@@ -1,5 +1,5 @@
 using EventCalendar.Domain.Models;
-using EventCalendar.Repositories;
+using EventCalendar.Infrastructure.Repositories;
 using EventCalendar.Tests.TestHelpers;
 using Microsoft.EntityFrameworkCore;
 

@@ -1,7 +1,10 @@
 ﻿using EventCalendar.Application.Repositories;
 using EventCalendar.Application.Services;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace EventCalendar.Services;
+using Microsoft.Extensions.Hosting;
+
+namespace EventCalendar.Infrastructure.Services;
 
 public sealed class BookingProcessor(IServiceScopeFactory scopeFactory) : BackgroundService
 {

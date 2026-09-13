@@ -1,7 +1,7 @@
 using EventCalendar.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace EventCalendar.DataAccess;
+namespace EventCalendar.Infrastructure.DataAccess;
 
 public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {

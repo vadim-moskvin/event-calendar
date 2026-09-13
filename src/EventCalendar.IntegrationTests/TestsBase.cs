@@ -1,4 +1,4 @@
-using EventCalendar.DataAccess;
+using EventCalendar.Infrastructure.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using Testcontainers.PostgreSql;

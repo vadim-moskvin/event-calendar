@@ -1,10 +1,10 @@
 using EventCalendar.Application;
 using EventCalendar.Application.Repositories;
-using EventCalendar.DataAccess;
 using EventCalendar.Domain.Models;
+using EventCalendar.Infrastructure.DataAccess;
 using Microsoft.EntityFrameworkCore;
 
-namespace EventCalendar.Repositories;
+namespace EventCalendar.Infrastructure.Repositories;
 
 public class EventRepository(AppDbContext appDbContext) : IEventRepository
 {
