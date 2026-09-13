@@ -17,7 +17,14 @@ Docker требуется для запуска PostgreSQL в среде раз�
 
 База данных создаётся автоматически при запуске посредством миграций EF Core.
 
-### Разработка
+## Разработка
+
+#### Структура Решения
+
+* EventCalendar.Domain — доменные сущности, value objects, доменные исключения. Не зависит ни от чего внешнего.
+* EventCalendar.Application — use cases, сервисы, интерфейсы портов (репозитории, шлюзы), DTO. Зависит только от Domain.
+* EventCalendar.Infrastructure — реализации портов: репозитории, DbContext, внешние клиенты. Зависит от Application и Domain.
+* EventCalendar — контроллеры/Minimal API эндпоинты, HTTP-маппинг, регистрация зависимостей. Зависит от Application и Infrastructure.
 
 В среде разработки предварительно можно использовать Docker для развёртывания PostgreSQL из конфигурационного файла:
 
@@ -25,11 +32,11 @@ Docker требуется для запуска PostgreSQL в среде раз�
 
 Для создания миграции нужно выполнить:
 
-```dotnet ef migrations add <имя миграции> --project src/EventCalendar```
+```dotnet ef migrations add <имя миграции> --project src/EventCalendar.Infrastructure```
 
 Для применения миграций нужно выполнить:
 
-```dotnet ef database update --project src/EventCalendar```
+```dotnet ef database update --project src/EventCalendar.Infrastructure```
 
 ## Тесты
 ```dotnet test src/EventCalendar.sln```
