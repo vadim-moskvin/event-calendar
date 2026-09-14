@@ -32,7 +32,7 @@ public class EventRepositoryTests : TestsBase
         Assert.NotNull(saved);
         Assert.Equal(title, saved.Title);
     }
-    
+
     [Fact]
     public async Task Get_event()
     {
@@ -281,7 +281,7 @@ public class EventRepositoryTests : TestsBase
 
         await Assert.ThrowsAsync<DbUpdateException>(() => repository.SaveChangesAsync());
     }
-    
+
     [Fact]
     public async Task Get_event_with_bookings()
     {
@@ -306,7 +306,7 @@ public class EventRepositoryTests : TestsBase
         Assert.Equal(title, result.Title);
         Assert.Equal(3, result.Bookings.Count);
     }
-    
+
     [Fact]
     public async Task Delete_event_with_booking()
     {

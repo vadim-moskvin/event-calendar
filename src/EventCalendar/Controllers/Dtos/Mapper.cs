@@ -28,13 +28,13 @@ public static class Mapper
     public static Event ToEntity(this EventDto dto, Guid id)
     {
         return new Event(id, dto.Title, dto.StartAt, dto.EndAt, dto.TotalSeats)
-            { Description = dto.Description };
+        { Description = dto.Description };
     }
 
     public static Event ToEntity(this EventDto dto)
     {
         return new Event(Guid.NewGuid(), dto.Title, dto.StartAt, dto.EndAt, dto.TotalSeats)
-            { Description = dto.Description };
+        { Description = dto.Description };
     }
 
     public static BookingDto ToDto(this Booking booking)

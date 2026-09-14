@@ -27,7 +27,7 @@ public class Booking
     public DateTime CreatedAt { get; }
 
     public DateTime? ProcessedAt { get; private set; }
-    
+
     public Event Event { get; private set; }
 
     public static Booking MakeNew(Guid eventId)

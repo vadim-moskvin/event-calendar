@@ -16,7 +16,7 @@ public class BookingServiceTests : TestsBase
         var eventId = Guid.NewGuid();
         const int seats = 5;
         var @event = TestServiceFactory.MakeEvent(id: eventId, totalSeats: seats);
-        
+
         await EventService.AddEventAsync(@event);
 
         // Act
@@ -36,7 +36,7 @@ public class BookingServiceTests : TestsBase
         var eventId = Guid.NewGuid();
         const int seats = 5;
         var @event = TestServiceFactory.MakeEvent(id: eventId, totalSeats: seats);
-        
+
         await EventService.AddEventAsync(@event);
 
         // Act
@@ -65,7 +65,7 @@ public class BookingServiceTests : TestsBase
         // Arrange
         var eventId = Guid.NewGuid();
         var @event = TestServiceFactory.MakeEvent(id: eventId);
-        
+
         await EventService.AddEventAsync(@event);
 
         // Act
@@ -82,9 +82,9 @@ public class BookingServiceTests : TestsBase
         // Arrange
         var eventId = Guid.NewGuid();
         var @event = TestServiceFactory.MakeEvent(id: eventId);
-        
+
         await EventService.AddEventAsync(@event);
-        
+
         var newBooking = await BookingService.CreateBookingAsync(eventId);
 
         // Act
@@ -111,7 +111,7 @@ public class BookingServiceTests : TestsBase
         // Arrange
         var eventId = Guid.NewGuid();
         var @event = TestServiceFactory.MakeEvent(id: eventId);
-        
+
         await EventService.AddEventAsync(@event);
         await EventService.RemoveEventAsync(eventId);
 
@@ -134,7 +134,7 @@ public class BookingServiceTests : TestsBase
         var eventId = Guid.NewGuid();
         const int seats = 5;
         var @event = TestServiceFactory.MakeEvent(id: eventId, totalSeats: seats);
-        
+
         await EventService.AddEventAsync(@event);
 
         const int requestCount = 20;
@@ -181,7 +181,7 @@ public class BookingServiceTests : TestsBase
         var eventId = Guid.NewGuid();
         const int seats = 10;
         var @event = TestServiceFactory.MakeEvent(id: eventId, totalSeats: seats);
-        
+
         await EventService.AddEventAsync(@event);
 
         const int requestCount = 10;
@@ -211,9 +211,9 @@ public class BookingServiceTests : TestsBase
         var eventId = Guid.NewGuid();
         const int seats = 1;
         var @event = TestServiceFactory.MakeEvent(id: eventId, totalSeats: seats);
-        
+
         await EventService.AddEventAsync(@event);
-        
+
         var booking = await BookingService.CreateBookingAsync(eventId);
 
         // Act

@@ -29,7 +29,7 @@ public class BookingTests
 
         // Act
         booking.Confirm();
-        
+
         // Assert
         Assert.Equal(BookingStatus.Confirmed, booking.Status);
         Assert.NotNull(booking.ProcessedAt);
@@ -44,7 +44,7 @@ public class BookingTests
 
         // Act
         booking.Reject();
-        
+
         // Assert
         Assert.Equal(BookingStatus.Rejected, booking.Status);
         Assert.NotNull(booking.ProcessedAt);

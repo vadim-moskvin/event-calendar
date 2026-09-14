@@ -16,7 +16,7 @@ public class BookingRepositoryTests : TestsBase
         await using var context = CreateContext();
         var eventId = Guid.NewGuid();
         var @event = TestServiceFactory.MakeEvent(eventId);
-        
+
         await context.Events.AddAsync(@event);
         await context.SaveChangesAsync();
 
@@ -33,7 +33,7 @@ public class BookingRepositoryTests : TestsBase
 
         Assert.NotNull(saved);
     }
-    
+
     [Fact]
     public async Task Get_booking()
     {
@@ -43,7 +43,7 @@ public class BookingRepositoryTests : TestsBase
         await using var context = CreateContext();
         var eventId = Guid.NewGuid();
         const string title = "Концерт";
-        
+
         context.Events.Add(TestServiceFactory.MakeEvent(eventId, title));
         var booking = Booking.MakeNew(eventId);
         await context.Bookings.AddAsync(booking);
@@ -68,13 +68,13 @@ public class BookingRepositoryTests : TestsBase
         var eventId = Guid.NewGuid();
         const string title = "Концерт";
         context.Events.Add(TestServiceFactory.MakeEvent(eventId, title));
-        
+
         var booking1 = Booking.MakeNew(eventId);
         await context.Bookings.AddAsync(booking1);
         var booking2 = Booking.MakeNew(eventId);
         booking2.Confirm();
         await context.Bookings.AddAsync(booking2);
-        
+
         await context.SaveChangesAsync();
 
         // Act
@@ -86,7 +86,7 @@ public class BookingRepositoryTests : TestsBase
         Assert.Equal(booking1.Id, result.Single().Id);
         Assert.NotNull(result.Single().Event);
     }
-    
+
     [Fact]
     public async Task Create_booking_for_invalid_event()
     {
