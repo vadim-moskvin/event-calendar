@@ -28,7 +28,7 @@ public class Booking
 
     public DateTime? ProcessedAt { get; private set; }
 
-    public Event Event { get; private set; }
+    public Event Event { get; private set; } = null!;   // Navigation Property
 
     public static Booking MakeNew(Guid eventId)
     {
