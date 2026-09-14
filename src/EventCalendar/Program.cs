@@ -1,4 +1,5 @@
 using System.Reflection;
+using EventCalendar.Application;
 using EventCalendar.Application.Services;
 using EventCalendar.Infrastructure;
 using EventCalendar.Infrastructure.DataAccess;
@@ -11,11 +12,9 @@ var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
                        ?? throw new InvalidOperationException("Connection string 'Default' not found.");
 
+builder.Services.AddApplication();
 builder.Services.AddInfrastructure(connectionString);
 
-builder.Services.AddScoped<IEventService, EventService>();
-builder.Services.AddScoped<IBookingService, BookingService>();
-builder.Services.AddScoped<IBookingProcessingService, BookingProcessingService>();
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
