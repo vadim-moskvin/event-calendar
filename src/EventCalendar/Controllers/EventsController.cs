@@ -1,6 +1,5 @@
-﻿using EventCalendar.Controllers.Dtos;
-using EventCalendar.Models;
-using EventCalendar.Services;
+﻿using EventCalendar.Application.Services;
+using EventCalendar.Controllers.Dtos;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EventCalendar.Controllers;

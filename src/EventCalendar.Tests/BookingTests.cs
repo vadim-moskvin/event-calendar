@@ -1,4 +1,4 @@
-﻿using EventCalendar.Models;
+﻿using EventCalendar.Domain.Models;
 
 namespace EventCalendar.Tests;
 
@@ -17,7 +17,7 @@ public class BookingTests
         Assert.Equal(BookingStatus.Pending, booking.Status);
         Assert.NotEqual(Guid.Empty, booking.Id);
         Assert.Equal(eventId, booking.EventId);
-        Assert.Equal(DateTime.Today, booking.CreatedAt.Date);
+        Assert.Equal(DateTime.UtcNow.Date, booking.CreatedAt.Date);
     }
 
     [Fact]

@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-using EventCalendar.Exceptions;
+using EventCalendar.Domain.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EventCalendar.Middlewares;

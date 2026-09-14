@@ -1,6 +1,7 @@
-using EventCalendar.DataAccess;
-using EventCalendar.Repositories;
-using EventCalendar.Services;
+using EventCalendar.Application.Repositories;
+using EventCalendar.Application.Services;
+using EventCalendar.Infrastructure.DataAccess;
+using EventCalendar.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 

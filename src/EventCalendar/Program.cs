@@ -1,8 +1,8 @@
 using System.Reflection;
-using EventCalendar.DataAccess;
+using EventCalendar.Application.Services;
+using EventCalendar.Infrastructure;
+using EventCalendar.Infrastructure.DataAccess;
 using EventCalendar.Middlewares;
-using EventCalendar.Repositories;
-using EventCalendar.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,14 +11,12 @@ var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
                        ?? throw new InvalidOperationException("Connection string 'Default' not found.");
 
-builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString));
+builder.Services.AddInfrastructure(connectionString);
 
-builder.Services.AddScoped<IEventRepository, EventRepository>();
-builder.Services.AddScoped<IBookingRepository, BookingRepository>();
 builder.Services.AddScoped<IEventService, EventService>();
 builder.Services.AddScoped<IBookingService, BookingService>();
+builder.Services.AddScoped<IBookingProcessingService, BookingProcessingService>();
 builder.Services.AddControllers();
-builder.Services.AddHostedService<BookingProcessor>();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 builder.Services.AddSwaggerGen(options =>
