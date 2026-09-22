@@ -15,4 +15,21 @@ public static class TestServiceFactory
 
         return new Event((Guid)id, title, (DateTime)startAt, (DateTime)endAt, (int)totalSeats);
     }
+
+    public static Booking MakeBooking(Guid? userId = null, Guid? eventId = null)
+    {
+        userId ??= Guid.NewGuid();
+        eventId ??= Guid.NewGuid();
+
+        return Booking.MakeNew((Guid)userId, (Guid)eventId);
+    }
+    
+    public static User MakeUser(Guid? id = null, string? login = null, string? hash = null, Role? role = null)
+    {
+        login ??= "login";
+        hash ??= "hash";
+        role ??= Role.User;
+
+        return User.MakeNew(login, hash, (Role)role);
+    }
 }

@@ -27,6 +27,14 @@ public class BookingRepository(AppDbContext appDbContext) : IBookingRepository
         await appDbContext.Bookings.AddAsync(bookingToCreate);
         return bookingToCreate;
     }
+    
+    public Task<int> GetActiveBookingCountByUserIdAsync(Guid userId)
+    {
+        return appDbContext.Bookings.CountAsync(x =>
+            x.UserId == userId &&
+            (x.Status == BookingStatus.Pending ||
+             x.Status == BookingStatus.Confirmed));
+    }
 
     public async Task<int> SaveChangesAsync(CancellationToken ct = default)
     {

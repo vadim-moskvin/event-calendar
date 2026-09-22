@@ -8,10 +8,11 @@ public class BookingTests
     public void Create_new_booking()
     {
         // Arrange
+        var userId = Guid.NewGuid();
         var eventId = Guid.NewGuid();
 
         // Act
-        var booking = Booking.MakeNew(eventId);
+        var booking = Booking.MakeNew(userId, eventId);
 
         // Assert
         Assert.Equal(BookingStatus.Pending, booking.Status);
@@ -24,8 +25,9 @@ public class BookingTests
     public void Confirm()
     {
         // Arrange
+        var userId = Guid.NewGuid();
         var eventId = Guid.NewGuid();
-        var booking = Booking.MakeNew(eventId);
+        var booking = Booking.MakeNew(userId, eventId);
 
         // Act
         booking.Confirm();
@@ -39,8 +41,9 @@ public class BookingTests
     public void Reject()
     {
         // Arrange
+        var userId = Guid.NewGuid();
         var eventId = Guid.NewGuid();
-        var booking = Booking.MakeNew(eventId);
+        var booking = Booking.MakeNew(userId, eventId);
 
         // Act
         booking.Reject();

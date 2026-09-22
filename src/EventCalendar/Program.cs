@@ -1,6 +1,5 @@
 using System.Reflection;
 using EventCalendar.Application;
-using EventCalendar.Application.Services;
 using EventCalendar.Infrastructure;
 using EventCalendar.Infrastructure.DataAccess;
 using EventCalendar.Middlewares;

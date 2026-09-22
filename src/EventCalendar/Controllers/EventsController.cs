@@ -1,5 +1,7 @@
-﻿using EventCalendar.Application.Services;
+﻿using System.IdentityModel.Tokens.Jwt;
+using EventCalendar.Application.Services;
 using EventCalendar.Controllers.Dtos;
+using EventCalendar.Domain.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EventCalendar.Controllers;
@@ -120,14 +122,42 @@ public class EventsController(IEventService eventService, IBookingService bookin
     /// <response code="202">Бронь успешно создана и ожидает обработки</response>
     /// <response code="404">Событие с указанным идентификатором не найдено</response>
     [ProducesResponseType(typeof(BookingDto), StatusCodes.Status202Accepted)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
     [Produces("application/json")]
     [HttpPost("{id:guid}/book")]
     public async Task<IActionResult> BookAsync(Guid id)
     {
-        var booking = await bookingService.CreateBookingAsync(id);
+        var subClaimValue = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
+        if (!Guid.TryParse(subClaimValue, out var userId))
+            return Unauthorized();
+        
+        var booking = await bookingService.CreateBookingAsync(userId, id);
         return AcceptedAtAction(nameof(GetBooking), new { id = booking.Id }, booking.ToDto());
+    }
+    
+    /// <summary>
+    /// Отменяет бронирование события
+    /// </summary>
+    /// <param name="id">GUID брони</param>
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+    [Produces("application/json")]
+    [HttpPost("{id:guid}/cancel")]
+    public async Task<IActionResult> CancelBookingAsync(Guid id)
+    {
+        var subClaimValue = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
+        if (!Guid.TryParse(subClaimValue, out var userId))
+            return Unauthorized();
+        
+        var roleClaimValue = User.FindFirst("role")?.Value;
+        if (!Enum.TryParse<Role>(roleClaimValue, out var role))
+            return Unauthorized();
+
+        await bookingService.CancelBookingAsync(id, userId, role);
+        return Ok();
     }
 
     /// <summary>
