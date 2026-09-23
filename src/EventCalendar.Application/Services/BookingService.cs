@@ -23,7 +23,7 @@ public class BookingService(IEventService eventService, IBookingRepository booki
         {
             var @event = await eventService.GetEventAsync(eventId);
 
-            if (@event.StartAt > DateTime.UtcNow)
+            if (@event.StartAt <= DateTime.UtcNow)
                 throw new EventAlreadyStartedException();
             var bookingCount = await bookingRepository
                 .GetActiveBookingCountByUserIdAsync(userId);
@@ -53,7 +53,7 @@ public class BookingService(IEventService eventService, IBookingRepository booki
         var isAdmin = actorRole == Role.Admin;
 
         if (!isOwner && !isAdmin)
-            throw new NotAllowedException();
+            throw new NotAllowedException("Нет прав для удаления бронирования");
 
         booking.Cancel();
         await bookingRepository.SaveChangesAsync();

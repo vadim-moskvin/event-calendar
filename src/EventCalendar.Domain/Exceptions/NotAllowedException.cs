@@ -1,3 +1,3 @@
 namespace EventCalendar.Domain.Exceptions;
 
-public class NotAllowedException() : Exception("No required rights for operation");
+public class NotAllowedException(string message) : Exception(message);

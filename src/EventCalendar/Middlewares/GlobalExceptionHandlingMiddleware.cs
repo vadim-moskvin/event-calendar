@@ -49,9 +49,12 @@ public class GlobalExceptionHandlingMiddleware(RequestDelegate next, ILogger<Glo
     private static int MapStatusCode(Exception ex)
         => ex switch
         {
-            ValidationException or BadRequestException => StatusCodes.Status400BadRequest,
+            ValidationException or BadRequestException or EventAlreadyStartedException => StatusCodes
+                .Status400BadRequest,
+            NotAllowedException => StatusCodes.Status403Forbidden,
             NotFoundException => StatusCodes.Status404NotFound,
-            NoAvailableSeatsException => StatusCodes.Status409Conflict,
+            NoAvailableSeatsException or MaxBookingPerUserException or LoginAlreadyExistsException => StatusCodes
+                .Status409Conflict,
             _ => StatusCodes.Status500InternalServerError
         };
 }

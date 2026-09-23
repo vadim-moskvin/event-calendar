@@ -2,6 +2,7 @@
 using EventCalendar.Application.Services;
 using EventCalendar.Controllers.Dtos;
 using EventCalendar.Domain.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EventCalendar.Controllers;
@@ -62,9 +63,11 @@ public class EventsController(IEventService eventService, IBookingService bookin
     /// Требуется предпринять действие на клиенте</response>
     [ProducesResponseType(typeof(GetEventDto), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
     [Produces("application/json")]
     [Consumes("application/json")]
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     public async Task<IActionResult> Post([FromBody] EventDto eventDto)
     {
@@ -88,9 +91,11 @@ public class EventsController(IEventService eventService, IBookingService bookin
     /// <response code="404">Событие с указанным идентификатором не найдено</response>
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [Produces("application/json")]
     [Consumes("application/json")]
+    [Authorize(Roles = "Admin")]
     [HttpPut("{id:guid}")]
     public IActionResult Put([FromRoute] Guid id, [FromBody] EventDto eventDto)
     {
@@ -106,8 +111,10 @@ public class EventsController(IEventService eventService, IBookingService bookin
     /// <response code="200">Событие удалено</response>
     /// <response code="404">Событие с указанным идентификатором не найдено</response>
     [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [Produces("application/json")]
+    [Authorize(Roles = "Admin")]
     [HttpDelete("{id:guid}")]
     public IActionResult Delete(Guid id)
     {
@@ -126,6 +133,7 @@ public class EventsController(IEventService eventService, IBookingService bookin
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
     [Produces("application/json")]
+    [Authorize]
     [HttpPost("{id:guid}/book")]
     public async Task<IActionResult> BookAsync(Guid id)
     {
@@ -144,8 +152,8 @@ public class EventsController(IEventService eventService, IBookingService bookin
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
-    [Produces("application/json")]
-    [HttpPost("{id:guid}/cancel")]
+    [Authorize]
+    [HttpDelete("/{id:guid}")]
     public async Task<IActionResult> CancelBookingAsync(Guid id)
     {
         var subClaimValue = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
@@ -167,8 +175,10 @@ public class EventsController(IEventService eventService, IBookingService bookin
     /// <response code="202">Бронь успешно создана и ожидает обработки</response>
     /// <response code="404">Бронь с указанным идентификатором не найдена</response>
     [ProducesResponseType(typeof(BookingDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [Produces("application/json")]
+    [Authorize]
     [HttpGet("~/bookings/{id:guid}")]
     public async Task<ActionResult<BookingDto>> GetBooking(Guid id)
     {

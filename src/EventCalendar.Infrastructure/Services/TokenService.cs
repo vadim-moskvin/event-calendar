@@ -18,7 +18,7 @@ public class TokenService(IOptions<TokenSettings> options) : ITokenService
         {
             [JwtRegisteredClaimNames.Sub] = userId.ToString(),
             ["login"] = login,
-            ["role"] = role
+            ["role"] = role.ToString()
         };
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_settings.SecretKey));

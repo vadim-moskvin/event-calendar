@@ -32,6 +32,15 @@ namespace EventCalendar.Infrastructure.UserDataMigrations
                     table.PrimaryKey("PK_Users", x => x.Id);
                 });
 
+            // Bookings created before users were introduced all receive Guid.Empty above.
+            // Preserve them by assigning that ID to an account that cannot sign in.
+            migrationBuilder.Sql("""
+                INSERT INTO "Users" ("Id", "Login", "PasswordHash", "Role")
+                SELECT '00000000-0000-0000-0000-000000000000'::uuid,
+                       '__legacy_bookings__', '!', 0
+                WHERE EXISTS (SELECT 1 FROM "Bookings");
+                """);
+
             migrationBuilder.CreateIndex(
                 name: "IX_Bookings_UserId",
                 table: "Bookings",

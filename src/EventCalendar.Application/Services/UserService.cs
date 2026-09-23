@@ -7,14 +7,14 @@ namespace EventCalendar.Application.Services;
 public class UserService(IUserRepository userRepository, IPasswordHasher passwordHasher, ITokenService tokenService)
     : IUserService
 {
-    public async Task<User> Register(string login, string password)
+    public async Task<User> Register(string login, string password, Role role)
     {
         var existingUser = await userRepository.FindUserAsync(login);
         if (existingUser != null)
-            throw new BadRequestException("User with this login already exists");
+            throw new BadRequestException("Пользователь с таким логином существует");
 
         var hashedPassword = passwordHasher.Hash(password);
-        var user = User.MakeNew(login, hashedPassword, Role.User);
+        var user = User.MakeNew(login, hashedPassword, role);
         await userRepository.CreateUserAsync(user);
         await userRepository.SaveChangesAsync();
         return user;
@@ -24,10 +24,10 @@ public class UserService(IUserRepository userRepository, IPasswordHasher passwor
     {
         var user = await userRepository.FindUserAsync(login);
         if (user == null)
-            throw new NotFoundException("User with this login does not exist");
+            throw new NotAllowedException("Неверный логин или пароль");
 
         if (!passwordHasher.CheckPassword(password, user.PasswordHash))
-            throw new BadRequestException("Invalid password");
+            throw new NotAllowedException("Неверный логин или пароль");
 
         return tokenService.GenerateToken(user.Id, login, user.Role);
     }
