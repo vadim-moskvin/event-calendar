@@ -30,6 +30,63 @@ public class BookingServiceTests : TestsBase
     }
 
     [Fact]
+    public async Task Book_past_event()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        var @event = TestServiceFactory.MakeEvent(startAt: DateTime.UtcNow.AddDays(-2),
+            endAt: DateTime.UtcNow.AddDays(-1));
+        await EventService.AddEventAsync(@event);
+
+        // Act + Assert
+        await Assert.ThrowsAsync<EventAlreadyStartedException>(() =>
+            BookingService.CreateBookingAsync(userId, @event.Id));
+
+        Assert.Empty(@event.Bookings);
+        Assert.Equal(@event.TotalSeats, @event.AvailableSeats);
+    }
+
+    [Fact]
+    public async Task Reach_booking_limit()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        var @event = TestServiceFactory.MakeEvent(totalSeats: 11);
+        await EventService.AddEventAsync(@event);
+
+        for (var i = 0; i < 10; i++)
+            await BookingService.CreateBookingAsync(userId, @event.Id);
+
+        // Act + Assert
+        await Assert.ThrowsAsync<MaxBookingPerUserException>(() =>
+            BookingService.CreateBookingAsync(userId, @event.Id));
+
+        Assert.Equal(10, @event.Bookings.Count);
+        Assert.Equal(1, @event.AvailableSeats);
+    }
+
+    [Fact]
+    public async Task Book_different_users()
+    {
+        // Arrange
+        var firstUserId = Guid.NewGuid();
+        var secondUserId = Guid.NewGuid();
+        var @event = TestServiceFactory.MakeEvent(totalSeats: 11);
+        await EventService.AddEventAsync(@event);
+
+        for (var i = 0; i < 10; i++)
+            await BookingService.CreateBookingAsync(firstUserId, @event.Id);
+
+        // Act
+        var booking = await BookingService.CreateBookingAsync(secondUserId, @event.Id);
+
+        // Assert
+        Assert.Equal(secondUserId, booking.UserId);
+        Assert.Equal(11, @event.Bookings.Count);
+        Assert.Equal(0, @event.AvailableSeats);
+    }
+
+    [Fact]
     public async Task Book_all_seats()
     {
         // Arrange

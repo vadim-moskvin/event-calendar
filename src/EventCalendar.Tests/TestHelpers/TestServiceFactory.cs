@@ -9,7 +9,7 @@ public static class TestServiceFactory
     {
         id ??= Guid.NewGuid();
         title ??= "Название события";
-        startAt ??= DateTime.UtcNow;
+        startAt ??= DateTime.UtcNow.AddDays(1);
         endAt ??= startAt + TimeSpan.FromHours(1);
         totalSeats ??= 100;
 
