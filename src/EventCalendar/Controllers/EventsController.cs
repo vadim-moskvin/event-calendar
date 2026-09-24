@@ -108,18 +108,18 @@ public class EventsController(IEventService eventService, IBookingService bookin
     /// Удаляет событие
     /// </summary>
     /// <param name="id">GUID события</param>
-    /// <response code="200">Событие удалено</response>
+    /// <response code="204">Событие удалено</response>
     /// <response code="404">Событие с указанным идентификатором не найдено</response>
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [Produces("application/json")]
     [Authorize(Roles = "Admin")]
     [HttpDelete("{id:guid}")]
-    public IActionResult Delete(Guid id)
+    public async Task<IActionResult> Delete(Guid id)
     {
-        eventService.RemoveEventAsync(id);
-        return Ok();
+        await eventService.RemoveEventAsync(id);
+        return NoContent();
     }
 
     /// <summary>
@@ -149,6 +149,8 @@ public class EventsController(IEventService eventService, IBookingService bookin
     /// Отменяет бронирование события
     /// </summary>
     /// <param name="id">GUID брони</param>
+    /// <response code="204">Бронирование отменено</response>
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
@@ -165,7 +167,7 @@ public class EventsController(IEventService eventService, IBookingService bookin
             return Unauthorized();
 
         await bookingService.CancelBookingAsync(id, userId, role);
-        return Ok();
+        return NoContent();
     }
 
     /// <summary>

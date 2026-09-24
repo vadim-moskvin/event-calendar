@@ -100,7 +100,28 @@ public class AuthorizationHttpTests : TestsBase
     }
 
     [Fact]
-    public async Task Cancel_another_users_booking()
+    public async Task Delete_event()
+    {
+        // Arrange
+        using var admin = await AuthenticatedClient(Role.Admin);
+        var create = await admin.PostAsJsonAsync("/events", NewEvent());
+        Assert.Equal(HttpStatusCode.Created, create.StatusCode);
+        var @event = await create.Content.ReadFromJsonAsync<GetEventDto>();
+        Assert.NotNull(@event);
+
+        // Act
+        var delete = await admin.DeleteAsync($"/events/{@event.Id}");
+        var deleteAgain = await admin.DeleteAsync($"/events/{@event.Id}");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.NoContent, delete.StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, deleteAgain.StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound,
+            (await _client.GetAsync($"/events/{@event.Id}")).StatusCode);
+    }
+
+    [Fact]
+    public async Task Cancel_booking_with_different_users()
     {
         // Arrange
         using var admin = await AuthenticatedClient(Role.Admin);
@@ -126,6 +147,14 @@ public class AuthorizationHttpTests : TestsBase
         await using var scope = _factory.Services.CreateAsyncScope();
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         Assert.NotEqual(BookingStatus.Cancelled,
+            (await db.Bookings.AsNoTracking().SingleAsync(b => b.Id == booking.Id)).Status);
+
+        // Act
+        var ownerCancel = await owner.DeleteAsync($"/{booking.Id}");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.NoContent, ownerCancel.StatusCode);
+        Assert.Equal(BookingStatus.Cancelled,
             (await db.Bookings.AsNoTracking().SingleAsync(b => b.Id == booking.Id)).Status);
     }
 
