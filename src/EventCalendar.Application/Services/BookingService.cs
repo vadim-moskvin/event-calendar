@@ -1,5 +1,4 @@
-﻿using System.Collections.Concurrent;
-using EventCalendar.Application.Repositories;
+﻿using EventCalendar.Application.Repositories;
 using EventCalendar.Domain.Exceptions;
 using EventCalendar.Domain.Models;
 
@@ -11,11 +10,13 @@ public class BookingService(IEventService eventService, IBookingRepository booki
 
     private const string BookingNotFoundException = "Бронь не найдена";
 
-    private static readonly ConcurrentDictionary<Guid, SemaphoreSlim> EventLocks = new();
+    private static readonly SemaphoreSlim[] EventLocks = Enumerable.Range(0, 256)
+        .Select(_ => new SemaphoreSlim(1, 1))
+        .ToArray();
 
     public async Task<Booking> CreateBookingAsync(Guid userId, Guid eventId)
     {
-        var semaphore = EventLocks.GetOrAdd(eventId, _ => new SemaphoreSlim(1, 1));
+        var semaphore = EventLocks[(int)((uint)eventId.GetHashCode() % EventLocks.Length)];
 
         await semaphore.WaitAsync();
 
