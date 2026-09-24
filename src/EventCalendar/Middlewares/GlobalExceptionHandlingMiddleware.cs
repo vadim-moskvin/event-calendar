@@ -51,6 +51,7 @@ public class GlobalExceptionHandlingMiddleware(RequestDelegate next, ILogger<Glo
         {
             ValidationException or BadRequestException or EventAlreadyStartedException => StatusCodes
                 .Status400BadRequest,
+            UnauthorizedException => StatusCodes.Status401Unauthorized,
             NotAllowedException => StatusCodes.Status403Forbidden,
             NotFoundException => StatusCodes.Status404NotFound,
             NoAvailableSeatsException or MaxBookingPerUserException or LoginAlreadyExistsException => StatusCodes

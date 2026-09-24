@@ -11,7 +11,7 @@ public class UserService(IUserRepository userRepository, IPasswordHasher passwor
     {
         var existingUser = await userRepository.FindUserAsync(login);
         if (existingUser != null)
-            throw new BadRequestException("Пользователь с таким логином существует");
+            throw new LoginAlreadyExistsException();
 
         var hashedPassword = passwordHasher.Hash(password);
         var user = User.MakeNew(login, hashedPassword, role);
@@ -24,10 +24,10 @@ public class UserService(IUserRepository userRepository, IPasswordHasher passwor
     {
         var user = await userRepository.FindUserAsync(login);
         if (user == null)
-            throw new NotAllowedException("Неверный логин или пароль");
+            throw new UnauthorizedException("Неверный логин или пароль");
 
         if (!passwordHasher.CheckPassword(password, user.PasswordHash))
-            throw new NotAllowedException("Неверный логин или пароль");
+            throw new UnauthorizedException("Неверный логин или пароль");
 
         return tokenService.GenerateToken(user.Id, login, user.Role);
     }

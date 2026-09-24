@@ -18,12 +18,16 @@ public class SecurityServiceTests
 
         // Act
         var hash = hasher.Hash("secret");
+        var anotherHash = hasher.Hash("secret");
 
         // Assert
         Assert.NotEqual("secret", hash);
-        Assert.Equal(hash, hasher.Hash("secret"));
+        Assert.StartsWith("pbkdf2-sha256$600000$", hash);
+        Assert.NotEqual(hash, anotherHash);
         Assert.True(hasher.CheckPassword("secret", hash));
+        Assert.True(hasher.CheckPassword("secret", anotherHash));
         Assert.False(hasher.CheckPassword("wrong", hash));
+        Assert.False(hasher.CheckPassword("secret", "invalid-hash"));
     }
 
     [Fact]

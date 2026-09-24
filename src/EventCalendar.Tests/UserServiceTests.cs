@@ -43,7 +43,7 @@ public class UserServiceTests : TestsBase
         await repository.CreateUserAsync(existing);
 
         // Act + Assert
-        await Assert.ThrowsAsync<BadRequestException>(() => UserService.Register("alice", "secret", Role.User));
+        await Assert.ThrowsAsync<LoginAlreadyExistsException>(() => UserService.Register("alice", "secret", Role.User));
         Assert.Equal(existing.Id, (await repository.FindUserAsync("alice"))?.Id);
         Assert.Single(ServiceProvider.GetRequiredService<AppDbContext>().Users);
     }
@@ -77,6 +77,6 @@ public class UserServiceTests : TestsBase
         await ServiceProvider.GetRequiredService<IUserRepository>().CreateUserAsync(user);
 
         // Act + Assert
-        await Assert.ThrowsAsync<NotAllowedException>(() => UserService.Login(login, password));
+        await Assert.ThrowsAsync<UnauthorizedException>(() => UserService.Login(login, password));
     }
 }

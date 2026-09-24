@@ -73,11 +73,11 @@ public class AuthorizationHttpTests : TestsBase
 
         // Assert
         Assert.Equal(HttpStatusCode.Created, register.StatusCode);
-        Assert.Equal(HttpStatusCode.BadRequest, duplicate.StatusCode);
+        Assert.Equal(HttpStatusCode.Conflict, duplicate.StatusCode);
         Assert.Equal(HttpStatusCode.OK, success.StatusCode);
         Assert.False(string.IsNullOrWhiteSpace((await success.Content.ReadFromJsonAsync<TokenDto>())?.Token));
-        Assert.Equal(HttpStatusCode.Forbidden, wrongPassword.StatusCode);
-        Assert.Equal(HttpStatusCode.Forbidden, unknownUser.StatusCode);
+        Assert.Equal(HttpStatusCode.Unauthorized, wrongPassword.StatusCode);
+        Assert.Equal(HttpStatusCode.Unauthorized, unknownUser.StatusCode);
     }
 
     [Fact]
