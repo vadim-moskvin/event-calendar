@@ -30,6 +30,26 @@ public class SecurityServiceTests
         Assert.False(hasher.CheckPassword("secret", "invalid-hash"));
     }
 
+    [Theory]
+    [InlineData("short", "issuer", "audience", 30)]
+    [InlineData("0123456789abcdef0123456789abcdef", "", "audience", 30)]
+    [InlineData("0123456789abcdef0123456789abcdef", "issuer", "", 30)]
+    [InlineData("0123456789abcdef0123456789abcdef", "issuer", "audience", 0)]
+    public void Token_settings_invalid_values(string secretKey, string issuer, string audience, int expirationMinutes)
+    {
+        // Arrange
+        var settings = new TokenSettings
+        {
+            SecretKey = secretKey,
+            Issuer = issuer,
+            Audience = audience,
+            ExpirationMinutes = expirationMinutes
+        };
+
+        // Act + Assert
+        Assert.Throws<InvalidOperationException>(() => settings.Validate());
+    }
+
     [Fact]
     public void Generate_token()
     {
@@ -42,6 +62,7 @@ public class SecurityServiceTests
             ExpirationMinutes = 30
         };
         var id = Guid.NewGuid();
+        settings.Validate();
 
         // Act
         var token = new TokenService(Options.Create(settings)).GenerateToken(id, "alice", Role.Admin);

@@ -9,17 +9,19 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
 var tokenSection = builder.Configuration.GetSection("TokenSettings");
 var tokenSettings = tokenSection.Get<TokenSettings>()
                     ?? throw new InvalidOperationException("TokenSettings не найдены в конфигурации.");
+tokenSettings.Validate();
 
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
                        ?? throw new InvalidOperationException("Connection string 'Default' not found.");
-builder.Services.Configure<TokenSettings>(tokenSection);
+builder.Services.AddSingleton<IOptions<TokenSettings>>(Options.Create(tokenSettings));
 
 builder.Services.AddAuthentication(options =>
     {

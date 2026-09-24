@@ -6,6 +6,7 @@ using EventCalendar.Infrastructure.Services;
 using EventCalendar.Application;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace EventCalendar.Tests.TestHelpers;
 
@@ -32,13 +33,13 @@ public abstract class TestsBase
         services.AddScoped<IUserService, UserService>();
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
         services.AddSingleton<ITokenService, TokenService>();
-        services.Configure<TokenSettings>(settings =>
+        services.AddSingleton<IOptions<TokenSettings>>(Options.Create(new TokenSettings
         {
-            settings.SecretKey = "0123456789abcdef0123456789abcdef";
-            settings.Issuer = "test-issuer";
-            settings.Audience = "test-audience";
-            settings.ExpirationMinutes = 30;
-        });
+            SecretKey = "0123456789abcdef0123456789abcdef",
+            Issuer = "test-issuer",
+            Audience = "test-audience",
+            ExpirationMinutes = 30
+        }));
 
         ServiceProvider = services.BuildServiceProvider();
         EventService = ServiceProvider.GetRequiredService<IEventService>();
