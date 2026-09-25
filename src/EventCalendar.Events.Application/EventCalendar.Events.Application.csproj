@@ -5,6 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
   <ItemGroup>
+    <ProjectReference Include="..\EventCalendar.Contracts\EventCalendar.Contracts.csproj" />
     <ProjectReference Include="..\EventCalendar.Events.Domain\EventCalendar.Events.Domain.csproj" />
   </ItemGroup>
   <ItemGroup>

@@ -16,6 +16,11 @@ jwtSettings.Validate();
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
                        ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+var kafkaSettings = new KafkaSettings(
+    builder.Configuration["Kafka:BootstrapServers"]
+    ?? throw new InvalidOperationException("Kafka:BootstrapServers not found."),
+    builder.Configuration["Kafka:ConsumerGroup"]
+    ?? throw new InvalidOperationException("Kafka:ConsumerGroup not found."));
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -38,7 +43,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddAuthorization();
 
 builder.Services.AddApplication();
-builder.Services.AddInfrastructure(connectionString);
+builder.Services.AddInfrastructure(connectionString, kafkaSettings);
 builder.Services.AddControllers();
 
 var app = builder.Build();
