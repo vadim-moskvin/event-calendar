@@ -1,12 +1,14 @@
 using EventCalendar.Bookings.Application.Repositories;
 using EventCalendar.Bookings.Application.Services;
 using Microsoft.Extensions.DependencyInjection;
-
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace EventCalendar.Bookings.Infrastructure.Services;
 
-public sealed class BookingProcessor(IServiceScopeFactory scopeFactory) : BackgroundService
+public sealed class BookingProcessor(
+    IServiceScopeFactory scopeFactory,
+    ILogger<BookingProcessor> logger) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -38,6 +40,17 @@ public sealed class BookingProcessor(IServiceScopeFactory scopeFactory) : Backgr
         var service = scope.ServiceProvider
             .GetRequiredService<IBookingProcessingService>();
 
-        await service.ProcessAsync(id, ct);
+        try
+        {
+            await service.ProcessAsync(id, ct);
+        }
+        catch (OperationCanceledException) when (ct.IsCancellationRequested)
+        {
+            throw;
+        }
+        catch (Exception exception)
+        {
+            logger.LogError(exception, "Failed to process booking {BookingId}", id);
+        }
     }
 }

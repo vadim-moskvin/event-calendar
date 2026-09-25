@@ -1,11 +1,12 @@
 using EventCalendar.Bookings.Application.Repositories;
-using Microsoft.Extensions.Logging;
+using EventCalendar.Bookings.Domain.Models;
+using EventCalendar.Contracts;
 
 namespace EventCalendar.Bookings.Application.Services;
 
 public sealed class BookingProcessingService(
     IBookingRepository bookingRepository,
-    ILogger<BookingProcessingService> logger)
+    IBookingConfirmedPublisher publisher)
     : IBookingProcessingService
 {
     public async Task ProcessAsync(Guid bookingId, CancellationToken cancellationToken)
@@ -13,11 +14,17 @@ public sealed class BookingProcessingService(
         await Task.Delay(TimeSpan.FromSeconds(2), cancellationToken);
 
         var booking = await bookingRepository.GetBookingAsync(bookingId);
-        if (booking is null)
+        if (booking is null || booking.Status != BookingStatus.Pending)
             return;
 
-        // Здесь будет отправка запроса на резервирование места через Kafka.
-        // До получения ответа Events бронь должна оставаться в статусе Pending.
-        logger.LogDebug("Booking {BookingId} is waiting for event processing", booking.Id);
+        booking.Confirm();
+        await bookingRepository.SaveChangesAsync(cancellationToken);
+
+        await publisher.PublishAsync(new BookingConfirmed(
+            booking.Id,
+            booking.EventId,
+            booking.UserId,
+            1,
+            booking.ProcessedAt!.Value), cancellationToken);
     }
 }

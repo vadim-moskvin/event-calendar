@@ -2,24 +2,60 @@ using EventCalendar.Bookings.Application.Repositories;
 using EventCalendar.Bookings.Application.Services;
 using EventCalendar.Bookings.Domain.Models;
 using EventCalendar.Bookings.Tests.TestHelpers;
+using EventCalendar.Contracts;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging.Abstractions;
 
 namespace EventCalendar.Bookings.Tests;
 
 public class BookingProcessingServiceTests : TestsBase
 {
     [Fact]
-    public async Task Booking_stays_pending_until_event_processing_is_connected()
+    public async Task Confirmed_booking_is_saved_before_event_is_published()
     {
-        var booking = await BookingService.CreateBookingAsync(Guid.NewGuid(), Guid.NewGuid());
+        var userId = Guid.NewGuid();
+        var eventId = Guid.NewGuid();
+        var booking = await BookingService.CreateBookingAsync(userId, eventId);
         var repository = ServiceProvider.GetRequiredService<IBookingRepository>();
-        var processor = new BookingProcessingService(repository,
-            NullLogger<BookingProcessingService>.Instance);
+        BookingConfirmed? published = null;
+        var publisher = new TestPublisher(async message =>
+        {
+            using var scope = ServiceProvider.CreateScope();
+            var stored = await scope.ServiceProvider.GetRequiredService<IBookingRepository>()
+                .GetBookingAsync(booking.Id);
+            Assert.Equal(BookingStatus.Confirmed, stored?.Status);
+            published = message;
+        });
+        var processor = new BookingProcessingService(repository, publisher);
 
         await processor.ProcessAsync(booking.Id, CancellationToken.None);
 
-        var saved = await repository.GetBookingAsync(booking.Id);
-        Assert.Equal(BookingStatus.Pending, saved?.Status);
+        Assert.NotNull(published);
+        Assert.Equal(booking.Id, published.BookingId);
+        Assert.Equal(eventId, published.EventId);
+        Assert.Equal(userId, published.UserId);
+        Assert.Equal(1, published.SeatCount);
+        Assert.Equal(booking.ProcessedAt, published.ConfirmedAt);
+        Assert.Equal(DateTimeKind.Utc, published.ConfirmedAt.Kind);
+    }
+
+    [Fact]
+    public async Task Cancelled_booking_is_not_confirmed_or_published()
+    {
+        var userId = Guid.NewGuid();
+        var booking = await BookingService.CreateBookingAsync(userId, Guid.NewGuid());
+        await BookingService.CancelBookingAsync(booking.Id, userId, false);
+        var publisher = new TestPublisher(_ => throw new Xunit.Sdk.XunitException("Unexpected publication"));
+        var processor = new BookingProcessingService(
+            ServiceProvider.GetRequiredService<IBookingRepository>(), publisher);
+
+        await processor.ProcessAsync(booking.Id, CancellationToken.None);
+
+        Assert.Equal(BookingStatus.Cancelled, booking.Status);
+    }
+
+    private sealed class TestPublisher(Func<BookingConfirmed, Task> publish) : IBookingConfirmedPublisher
+    {
+        public Task PublishAsync(BookingConfirmed message, CancellationToken cancellationToken = default)
+            => publish(message);
     }
 }

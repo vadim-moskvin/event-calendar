@@ -16,6 +16,8 @@ jwtSettings.Validate();
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
                        ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+var bootstrapServers = builder.Configuration["Kafka:BootstrapServers"]
+                       ?? throw new InvalidOperationException("Kafka:BootstrapServers not found.");
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -38,7 +40,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddAuthorization();
 
 builder.Services.AddApplication();
-builder.Services.AddInfrastructure(connectionString);
+builder.Services.AddInfrastructure(connectionString, bootstrapServers);
 builder.Services.AddControllers();
 
 var app = builder.Build();
