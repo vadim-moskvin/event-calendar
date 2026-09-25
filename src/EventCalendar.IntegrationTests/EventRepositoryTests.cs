@@ -289,12 +289,17 @@ public class EventRepositoryTests : TestsBase
 
         // Arrange
         await using var context = CreateContext();
+        
+        var user = TestServiceFactory.MakeUser();
+        await context.Users.AddAsync(user);
+        
         var eventId = Guid.NewGuid();
         const string title = "Концерт";
         context.Events.Add(TestServiceFactory.MakeEvent(eventId, title));
-        context.Bookings.Add(Booking.MakeNew(eventId));
-        context.Bookings.Add(Booking.MakeNew(eventId));
-        context.Bookings.Add(Booking.MakeNew(eventId));
+        
+        context.Bookings.Add(TestServiceFactory.MakeBooking(user.Id, eventId));
+        context.Bookings.Add(TestServiceFactory.MakeBooking(user.Id, eventId));
+        context.Bookings.Add(TestServiceFactory.MakeBooking(user.Id, eventId));
         await context.SaveChangesAsync();
 
         // Act
@@ -314,9 +319,13 @@ public class EventRepositoryTests : TestsBase
 
         // Arrange
         await using var context = CreateContext();
+        
+        var user = TestServiceFactory.MakeUser();
+        await context.Users.AddAsync(user);
+        
         var eventId = Guid.NewGuid();
         await context.Events.AddAsync(TestServiceFactory.MakeEvent(eventId));
-        await context.Bookings.AddAsync(Booking.MakeNew(eventId));
+        await context.Bookings.AddAsync(TestServiceFactory.MakeBooking(user.Id, eventId));
         await context.SaveChangesAsync();
 
         // Act

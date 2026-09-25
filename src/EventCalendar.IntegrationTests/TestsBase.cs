@@ -11,12 +11,14 @@ public class TestsBase : IAsyncLifetime
         .WithDatabase("eventcalendar_test")
         .Build();
 
-    public async Task InitializeAsync()
+    protected string ConnectionString => _postgres.GetConnectionString();
+
+    public virtual async Task InitializeAsync()
     {
         await _postgres.StartAsync();
     }
 
-    public async Task DisposeAsync()
+    public virtual async Task DisposeAsync()
     {
         await _postgres.DisposeAsync();
     }
@@ -24,7 +26,7 @@ public class TestsBase : IAsyncLifetime
     protected AppDbContext CreateContext()
     {
         var options = new DbContextOptionsBuilder<AppDbContext>()
-            .UseNpgsql(_postgres.GetConnectionString())
+            .UseNpgsql(ConnectionString)
             .Options;
 
         return new AppDbContext(options);

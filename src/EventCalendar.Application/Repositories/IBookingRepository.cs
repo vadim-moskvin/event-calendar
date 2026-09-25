@@ -9,6 +9,8 @@ public interface IBookingRepository
     Task<IReadOnlyList<Booking>> GetPendingBookingsAsync(CancellationToken ct = default);
 
     Task<Booking> CreateBookingAsync(Booking bookingToCreate);
+    
+    Task<int> GetActiveBookingCountByUserIdAsync(Guid userId);
 
     Task<int> SaveChangesAsync(CancellationToken ct = default);
 }

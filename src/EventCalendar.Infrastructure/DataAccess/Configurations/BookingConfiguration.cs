@@ -16,5 +16,9 @@ public class BookingConfiguration : IEntityTypeConfiguration<Booking>
         builder.Property(x => x.EventId).IsRequired();
         builder.Property(x => x.CreatedAt).IsRequired();
         builder.Property(x => x.Status).HasConversion<string>();
+
+        builder.HasOne<User>()
+            .WithMany()
+            .HasForeignKey(x => x.UserId);
     }
 }
