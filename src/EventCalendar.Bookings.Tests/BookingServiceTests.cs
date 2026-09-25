@@ -11,94 +11,124 @@ public class BookingServiceTests : TestsBase
     [Fact]
     public async Task Create_booking_without_event_lookup()
     {
+        // Arrange
         var userId = Guid.NewGuid();
         var eventId = Guid.NewGuid();
 
+        // Act
         var booking = await BookingService.CreateBookingAsync(userId, eventId);
         var saved = await BookingService.GetBookingByIdAsync(booking.Id, userId, false);
 
+        // Assert
         Assert.Equal(userId, saved.UserId);
         Assert.Equal(eventId, saved.EventId);
         Assert.Equal(BookingStatus.Pending, saved.Status);
     }
 
     [Fact]
-    public async Task Reject_eleventh_active_booking()
+    public async Task Create_booking_at_user_limit()
     {
+        // Arrange
         var userId = Guid.NewGuid();
         for (var i = 0; i < 10; i++)
             await BookingService.CreateBookingAsync(userId, Guid.NewGuid());
 
-        await Assert.ThrowsAsync<MaxBookingPerUserException>(() =>
-            BookingService.CreateBookingAsync(userId, Guid.NewGuid()));
+        // Act
+        var action = () => BookingService.CreateBookingAsync(userId, Guid.NewGuid());
+
+        // Assert
+        await Assert.ThrowsAsync<MaxBookingPerUserException>(action);
     }
 
     [Fact]
-    public async Task Limit_is_per_user()
+    public async Task Create_booking_for_another_user_at_limit()
     {
+        // Arrange
         var firstUser = Guid.NewGuid();
         var secondUser = Guid.NewGuid();
         for (var i = 0; i < 10; i++)
             await BookingService.CreateBookingAsync(firstUser, Guid.NewGuid());
 
+        // Act
         var booking = await BookingService.CreateBookingAsync(secondUser, Guid.NewGuid());
 
+        // Assert
         Assert.Equal(secondUser, booking.UserId);
     }
 
     [Fact]
-    public async Task Cancelled_booking_frees_a_slot()
+    public async Task Create_booking_after_cancellation_at_limit()
     {
+        // Arrange
         var userId = Guid.NewGuid();
         var first = await BookingService.CreateBookingAsync(userId, Guid.NewGuid());
         for (var i = 1; i < 10; i++)
             await BookingService.CreateBookingAsync(userId, Guid.NewGuid());
 
+        // Act
         await BookingService.CancelBookingAsync(first.Id, userId, false);
         var replacement = await BookingService.CreateBookingAsync(userId, Guid.NewGuid());
 
+        // Assert
         Assert.Equal(BookingStatus.Pending, replacement.Status);
         Assert.Equal(BookingStatus.Cancelled,
             (await BookingService.GetBookingByIdAsync(first.Id, userId, false)).Status);
     }
 
     [Fact]
-    public async Task Other_user_cannot_read_or_cancel_booking()
+    public async Task Read_or_cancel_another_users_booking()
     {
+        // Arrange
         var owner = Guid.NewGuid();
         var other = Guid.NewGuid();
         var booking = await BookingService.CreateBookingAsync(owner, Guid.NewGuid());
 
-        await Assert.ThrowsAsync<NotAllowedException>(() =>
-            BookingService.GetBookingByIdAsync(booking.Id, other, false));
-        await Assert.ThrowsAsync<NotAllowedException>(() =>
-            BookingService.CancelBookingAsync(booking.Id, other, false));
+        // Act
+        var read = () => BookingService.GetBookingByIdAsync(booking.Id, other, false);
+        var cancel = () => BookingService.CancelBookingAsync(booking.Id, other, false);
+
+        // Assert
+        await Assert.ThrowsAsync<NotAllowedException>(read);
+        await Assert.ThrowsAsync<NotAllowedException>(cancel);
         Assert.Equal(BookingStatus.Pending,
             (await BookingService.GetBookingByIdAsync(booking.Id, owner, false)).Status);
     }
 
     [Fact]
-    public async Task Admin_can_cancel_another_users_booking()
+    public async Task Cancel_another_users_booking_as_admin()
     {
+        // Arrange
         var booking = await BookingService.CreateBookingAsync(Guid.NewGuid(), Guid.NewGuid());
 
+        // Act
         await BookingService.CancelBookingAsync(booking.Id, Guid.NewGuid(), true);
 
+        // Assert
         Assert.Equal(BookingStatus.Cancelled,
             (await BookingService.GetBookingByIdAsync(booking.Id, Guid.NewGuid(), true)).Status);
     }
 
     [Fact]
-    public async Task Missing_booking_throws_not_found()
+    public async Task Get_missing_booking()
     {
-        await Assert.ThrowsAsync<NotFoundException>(() =>
-            BookingService.GetBookingByIdAsync(Guid.NewGuid(), Guid.NewGuid(), false));
+        // Arrange
+        var bookingId = Guid.NewGuid();
+        var userId = Guid.NewGuid();
+
+        // Act
+        var action = () => BookingService.GetBookingByIdAsync(bookingId, userId, false);
+
+        // Assert
+        await Assert.ThrowsAsync<NotFoundException>(action);
     }
 
     [Fact]
-    public async Task Concurrent_requests_for_same_user_observe_limit()
+    public async Task Create_bookings_concurrently_for_same_user()
     {
+        // Arrange
         var userId = Guid.NewGuid();
+
+        // Act
         var tasks = Enumerable.Range(0, 20).Select(async _ =>
         {
             using var scope = ServiceProvider.CreateScope();
@@ -116,6 +146,7 @@ public class BookingServiceTests : TestsBase
 
         var results = await Task.WhenAll(tasks);
 
+        // Assert
         Assert.Equal(10, results.Count(x => x));
         Assert.Equal(10, results.Count(x => !x));
     }

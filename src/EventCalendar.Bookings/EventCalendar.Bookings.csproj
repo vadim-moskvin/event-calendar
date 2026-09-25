@@ -11,6 +11,10 @@
     <ProjectReference Include="..\EventCalendar.Bookings.Infrastructure\EventCalendar.Bookings.Infrastructure.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <InternalsVisibleTo Include="EventCalendar.Bookings.IntegrationTests" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="10.2.3" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.10" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.10" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.10">

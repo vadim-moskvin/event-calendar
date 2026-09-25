@@ -105,16 +105,19 @@ public class EventServiceTests : TestsBase
     }
 
     [Fact]
-    public async Task Updating_capacity_updates_available_seats()
+    public async Task Update_event_capacity()
     {
+        // Arrange
         var id = Guid.NewGuid();
         var start = DateTime.UtcNow.AddDays(1);
         var original = new Event(id, "Концерт", start, start.AddHours(1), 5);
         await EventService.AddEventAsync(original);
 
+        // Act
         var updated = new Event(id, "Концерт", start, start.AddHours(1), 8);
         await EventService.ChangeEventAsync(updated);
 
+        // Assert
         var saved = await EventService.GetEventAsync(id);
         Assert.Equal(8, saved.TotalSeats);
         Assert.Equal(8, saved.AvailableSeats);
@@ -252,8 +255,14 @@ public class EventServiceTests : TestsBase
     [Fact]
     public async Task Get_non_existing_event()
     {
-        // Act + Assert
-        await Assert.ThrowsAsync<NotFoundException>(() => EventService.GetEventAsync(@Guid.NewGuid()));
+        // Arrange
+        var id = Guid.NewGuid();
+
+        // Act
+        var action = () => EventService.GetEventAsync(id);
+
+        // Assert
+        await Assert.ThrowsAsync<NotFoundException>(action);
     }
 
     [Fact]
@@ -263,15 +272,24 @@ public class EventServiceTests : TestsBase
         var @event = new Event(Guid.NewGuid(), "Тестовое событие", new DateTime(2022, 10, 8),
             new DateTime(2024, 10, 9), 5, "Описание");
 
-        // Act + Assert
-        await Assert.ThrowsAsync<NotFoundException>(() => EventService.ChangeEventAsync(@event));
+        // Act
+        var action = () => EventService.ChangeEventAsync(@event);
+
+        // Assert
+        await Assert.ThrowsAsync<NotFoundException>(action);
     }
 
     [Fact]
     public void Create_invalid_event()
     {
-        // Act + Assert
-        Assert.Throws<ArgumentException>(() => new Event(Guid.NewGuid(), string.Empty, new DateTime(2024, 10, 8),
-            new DateTime(2022, 10, 9), 5, "Описание"));
+        // Arrange
+        var id = Guid.NewGuid();
+
+        // Act
+        Action action = () => new Event(id, string.Empty, new DateTime(2024, 10, 8),
+            new DateTime(2022, 10, 9), 5, "Описание");
+
+        // Assert
+        Assert.Throws<ArgumentException>(action);
     }
 }

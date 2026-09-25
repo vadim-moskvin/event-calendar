@@ -10,15 +10,18 @@ namespace EventCalendar.Events.Tests;
 public sealed class BookingConfirmationHandlerTests : TestsBase
 {
     [Fact]
-    public async Task Confirmation_reserves_requested_seats()
+    public async Task Confirm_booking()
     {
+        // Arrange
         var @event = NewEvent(5);
         await EventService.AddEventAsync(@event);
         var handler = new BookingConfirmationHandler(
             ServiceProvider.GetRequiredService<IEventRepository>());
 
+        // Act
         var result = await handler.HandleAsync(Confirmation(@event.Id, 2));
 
+        // Assert
         Assert.Equal(BookingConfirmationResult.Reserved, result);
         using var scope = ServiceProvider.CreateScope();
         var saved = await scope.ServiceProvider
@@ -28,40 +31,49 @@ public sealed class BookingConfirmationHandlerTests : TestsBase
     }
 
     [Fact]
-    public async Task Missing_event_is_skipped()
+    public async Task Confirm_booking_for_missing_event()
     {
+        // Arrange
         var handler = new BookingConfirmationHandler(
             ServiceProvider.GetRequiredService<IEventRepository>());
 
+        // Act
         var result = await handler.HandleAsync(Confirmation(Guid.NewGuid(), 1));
 
+        // Assert
         Assert.Equal(BookingConfirmationResult.EventNotFound, result);
     }
 
     [Fact]
-    public async Task Insufficient_seats_are_skipped_without_change()
+    public async Task Confirm_booking_without_enough_seats()
     {
+        // Arrange
         var @event = NewEvent(1);
         await EventService.AddEventAsync(@event);
         var handler = new BookingConfirmationHandler(
             ServiceProvider.GetRequiredService<IEventRepository>());
 
+        // Act
         var result = await handler.HandleAsync(Confirmation(@event.Id, 2));
 
+        // Assert
         Assert.Equal(BookingConfirmationResult.NoAvailableSeats, result);
         Assert.Equal(1, @event.AvailableSeats);
     }
 
     [Fact]
-    public async Task Invalid_seat_count_is_skipped()
+    public async Task Confirm_booking_with_invalid_seat_count()
     {
+        // Arrange
         var @event = NewEvent(5);
         await EventService.AddEventAsync(@event);
         var handler = new BookingConfirmationHandler(
             ServiceProvider.GetRequiredService<IEventRepository>());
 
+        // Act
         var result = await handler.HandleAsync(Confirmation(@event.Id, 0));
 
+        // Assert
         Assert.Equal(BookingConfirmationResult.InvalidMessage, result);
         Assert.Equal(5, @event.AvailableSeats);
     }

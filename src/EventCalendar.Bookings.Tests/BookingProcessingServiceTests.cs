@@ -10,25 +10,30 @@ namespace EventCalendar.Bookings.Tests;
 public class BookingProcessingServiceTests : TestsBase
 {
     [Fact]
-    public async Task Confirmed_booking_is_saved_before_event_is_published()
+    public async Task Process_pending_booking()
     {
+        // Arrange
         var userId = Guid.NewGuid();
         var eventId = Guid.NewGuid();
         var booking = await BookingService.CreateBookingAsync(userId, eventId);
         var repository = ServiceProvider.GetRequiredService<IBookingRepository>();
         BookingConfirmed? published = null;
+        BookingStatus? statusAtPublish = null;
         var publisher = new TestPublisher(async message =>
         {
             using var scope = ServiceProvider.CreateScope();
             var stored = await scope.ServiceProvider.GetRequiredService<IBookingRepository>()
                 .GetBookingAsync(booking.Id);
-            Assert.Equal(BookingStatus.Confirmed, stored?.Status);
+            statusAtPublish = stored?.Status;
             published = message;
         });
         var processor = new BookingProcessingService(repository, publisher);
 
+        // Act
         await processor.ProcessAsync(booking.Id, CancellationToken.None);
 
+        // Assert
+        Assert.Equal(BookingStatus.Confirmed, statusAtPublish);
         Assert.NotNull(published);
         Assert.Equal(booking.Id, published.BookingId);
         Assert.Equal(eventId, published.EventId);
@@ -39,8 +44,9 @@ public class BookingProcessingServiceTests : TestsBase
     }
 
     [Fact]
-    public async Task Cancelled_booking_is_not_confirmed_or_published()
+    public async Task Process_cancelled_booking()
     {
+        // Arrange
         var userId = Guid.NewGuid();
         var booking = await BookingService.CreateBookingAsync(userId, Guid.NewGuid());
         await BookingService.CancelBookingAsync(booking.Id, userId, false);
@@ -48,8 +54,10 @@ public class BookingProcessingServiceTests : TestsBase
         var processor = new BookingProcessingService(
             ServiceProvider.GetRequiredService<IBookingRepository>(), publisher);
 
+        // Act
         await processor.ProcessAsync(booking.Id, CancellationToken.None);
 
+        // Assert
         Assert.Equal(BookingStatus.Cancelled, booking.Status);
     }
 
