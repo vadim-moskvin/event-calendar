@@ -43,7 +43,7 @@ public class EventRepository(EventsDbContext appDbContext) : IEventRepository
     public async Task<IList<Event>> GetTop10EventsAsync()
     {
         return await appDbContext.Events
-            .OrderByDescending(x => (x.TotalSeats - x.AvailableSeats) / x.TotalSeats)
+            .OrderByDescending(x => (double)(x.TotalSeats - x.AvailableSeats) / x.TotalSeats)
             .Take(10)
             .ToListAsync();
     }

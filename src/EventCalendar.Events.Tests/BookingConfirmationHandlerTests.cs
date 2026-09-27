@@ -1,4 +1,5 @@
 using EventCalendar.Contracts;
+using EventCalendar.Events.Application;
 using EventCalendar.Events.Application.Repositories;
 using EventCalendar.Events.Application.Services;
 using EventCalendar.Events.Domain.Models;
@@ -15,8 +16,12 @@ public sealed class BookingConfirmationHandlerTests : TestsBase
         // Arrange
         var @event = NewEvent(5);
         await EventService.AddEventAsync(@event);
+        var cache = ServiceProvider.GetRequiredService<StubCacheService>();
+        var cacheKey = Constants.EventCacheKey(@event.Id);
+        await cache.Set(cacheKey, @event, TimeSpan.FromMinutes(1));
         var handler = new BookingConfirmationHandler(
-            ServiceProvider.GetRequiredService<IEventRepository>());
+            ServiceProvider.GetRequiredService<IEventRepository>(),
+            ServiceProvider.GetRequiredService<ICacheService>());
 
         // Act
         var result = await handler.HandleAsync(Confirmation(@event.Id, 2));
@@ -28,6 +33,8 @@ public sealed class BookingConfirmationHandlerTests : TestsBase
             .GetRequiredService<IEventRepository>()
             .GetEventAsync(@event.Id);
         Assert.Equal(3, saved?.AvailableSeats);
+        Assert.Contains(cacheKey, cache.RemovedKeys);
+        Assert.Null(await cache.Get<Event>(cacheKey));
     }
 
     [Fact]
@@ -35,7 +42,8 @@ public sealed class BookingConfirmationHandlerTests : TestsBase
     {
         // Arrange
         var handler = new BookingConfirmationHandler(
-            ServiceProvider.GetRequiredService<IEventRepository>());
+            ServiceProvider.GetRequiredService<IEventRepository>(),
+            ServiceProvider.GetRequiredService<ICacheService>());
 
         // Act
         var result = await handler.HandleAsync(Confirmation(Guid.NewGuid(), 1));
@@ -51,7 +59,8 @@ public sealed class BookingConfirmationHandlerTests : TestsBase
         var @event = NewEvent(1);
         await EventService.AddEventAsync(@event);
         var handler = new BookingConfirmationHandler(
-            ServiceProvider.GetRequiredService<IEventRepository>());
+            ServiceProvider.GetRequiredService<IEventRepository>(),
+            ServiceProvider.GetRequiredService<ICacheService>());
 
         // Act
         var result = await handler.HandleAsync(Confirmation(@event.Id, 2));
@@ -68,7 +77,8 @@ public sealed class BookingConfirmationHandlerTests : TestsBase
         var @event = NewEvent(5);
         await EventService.AddEventAsync(@event);
         var handler = new BookingConfirmationHandler(
-            ServiceProvider.GetRequiredService<IEventRepository>());
+            ServiceProvider.GetRequiredService<IEventRepository>(),
+            ServiceProvider.GetRequiredService<ICacheService>());
 
         // Act
         var result = await handler.HandleAsync(Confirmation(@event.Id, 0));

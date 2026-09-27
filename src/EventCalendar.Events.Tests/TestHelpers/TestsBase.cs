@@ -1,3 +1,4 @@
+using EventCalendar.Events.Application;
 using EventCalendar.Events.Application.Repositories;
 using EventCalendar.Events.Application.Services;
 using EventCalendar.Events.Infrastructure.DataAccess;
@@ -20,6 +21,13 @@ public abstract class TestsBase : IDisposable
             options.UseInMemoryDatabase(databaseName));
         services.AddScoped<IEventRepository, EventRepository>();
         services.AddScoped<IEventService, EventService>();
+        services.AddSingleton<StubCacheService>();
+        services.AddSingleton<ICacheService>(provider => provider.GetRequiredService<StubCacheService>());
+        services.AddSingleton(new CacheSettings
+        {
+            GetEventTtlInMinutes = 1,
+            GetTop10EventsTtlInMinutes = 10
+        });
 
         ServiceProvider = services.BuildServiceProvider();
         EventService = ServiceProvider.GetRequiredService<IEventService>();
