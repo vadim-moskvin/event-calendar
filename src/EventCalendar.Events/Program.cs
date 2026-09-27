@@ -16,6 +16,10 @@ var jwtSettings = builder.Configuration.GetSection("TokenSettings").Get<JwtSetti
                   ?? throw new InvalidOperationException("TokenSettings не найдены в конфигурации.");
 jwtSettings.Validate();
 
+var cacheSettings = builder.Configuration.GetSection("CacheSettings").Get<CacheSettings>()
+                  ?? throw new InvalidOperationException("CacheSettings не найдены в конфигурации.");
+cacheSettings.Validate();
+
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
                        ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 var kafkaSettings = new KafkaSettings(

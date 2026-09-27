@@ -4,7 +4,8 @@ using EventCalendar.Events.Domain.Models;
 
 namespace EventCalendar.Events.Application.Services;
 
-public class EventService(IEventRepository eventRepository, ICacheService cacheService) : IEventService
+public class EventService(IEventRepository eventRepository, ICacheService cacheService, CacheSettings cacheSettings)
+    : IEventService
 {
     private const string DateOutOfRangeException = "Параметр {0} не может быть больше параметра {1}.";
     private const string PageOutOfRangeException = "Номер страницы должен быть больше ноля.";
@@ -41,7 +42,7 @@ public class EventService(IEventRepository eventRepository, ICacheService cacheS
         }
 
         var @event = await eventRepository.GetEventAsync(id) ?? throw new NotFoundException(EventNotFoundException);
-        await cacheService.Set(cacheKey, @event, TimeSpan.FromMinutes(1));
+        await cacheService.Set(cacheKey, @event, TimeSpan.FromMinutes(cacheSettings.GetEventTtlInMinutes));
         return @event;
     }
 
@@ -66,7 +67,7 @@ public class EventService(IEventRepository eventRepository, ICacheService cacheS
         }
 
         var events = await eventRepository.GetTop10EventsAsync();
-        await cacheService.Set(cacheKey, events, TimeSpan.FromMinutes(10));
+        await cacheService.Set(cacheKey, events, TimeSpan.FromMinutes(cacheSettings.GetTop10EventsTtlInMinutes));
         return events;
     }
 
@@ -78,7 +79,7 @@ public class EventService(IEventRepository eventRepository, ICacheService cacheS
 
         entity.Update(@event.Title, @event.Description, @event.StartAt, @event.EndAt, @event.TotalSeats);
         await eventRepository.SaveChangesAsync();
-        
+
         var cacheKey = Constants.EventCacheKey(@event.Id);
         await cacheService.Remove(cacheKey);
     }
@@ -89,7 +90,7 @@ public class EventService(IEventRepository eventRepository, ICacheService cacheS
             throw new NotFoundException(EventNotFoundException);
 
         await eventRepository.SaveChangesAsync();
-        
+
         var cacheKey = Constants.EventCacheKey(id);
         await cacheService.Remove(cacheKey);
     }
