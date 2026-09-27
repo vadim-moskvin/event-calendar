@@ -4,7 +4,7 @@ using EventCalendar.Events.Domain.Models;
 
 namespace EventCalendar.Events.Application.Services;
 
-public class EventService(IEventRepository eventRepository) : IEventService
+public class EventService(IEventRepository eventRepository, ICacheService cacheService) : IEventService
 {
     private const string DateOutOfRangeException = "Параметр {0} не может быть больше параметра {1}.";
     private const string PageOutOfRangeException = "Номер страницы должен быть больше ноля.";
@@ -31,7 +31,18 @@ public class EventService(IEventRepository eventRepository) : IEventService
 
     public async Task<Event> GetEventAsync(Guid id)
     {
-        return await eventRepository.GetEventAsync(id) ?? throw new NotFoundException(EventNotFoundException);
+        var cacheKey = $"event:{id}";
+
+        var cached = await cacheService.Get<Event>(cacheKey);
+
+        if (cached != null)
+        {
+            return cached;
+        }
+
+        var @event = await eventRepository.GetEventAsync(id) ?? throw new NotFoundException(EventNotFoundException);
+        await cacheService.Set(cacheKey, @event, TimeSpan.FromMinutes(1));
+        return @event;
     }
 
     public async Task<bool> AddEventAsync(Event @event)
@@ -41,6 +52,22 @@ public class EventService(IEventRepository eventRepository) : IEventService
 
         await eventRepository.CreateEventAsync(@event);
         return await eventRepository.SaveChangesAsync() > 0;
+    }
+
+    public async Task<IList<Event>> GetTop10EventsAsync()
+    {
+        const string cacheKey = "events:top10";
+
+        var cached = await cacheService.Get<List<Event>>(cacheKey);
+
+        if (cached != null)
+        {
+            return cached;
+        }
+
+        var events = await eventRepository.GetTop10EventsAsync();
+        await cacheService.Set(cacheKey, events, TimeSpan.FromMinutes(10));
+        return events;
     }
 
     public async Task ChangeEventAsync(Event @event)

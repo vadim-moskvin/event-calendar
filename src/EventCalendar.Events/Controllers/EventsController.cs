@@ -49,6 +49,19 @@ public class EventsController(IEventService eventService) : ControllerBase
         var @event = await eventService.GetEventAsync(id);
         return Ok(@event.ToGetEventDto());
     }
+    
+    /// <summary>
+    /// Возвращает десять самых популярных событий
+    /// </summary>
+    /// <response code="200">События найдены</response>
+    [ProducesResponseType(typeof(ActionResult<IList<EventDto>>), StatusCodes.Status200OK)]
+    [Produces("application/json")]
+    [HttpGet("/top10")]
+    public async Task<ActionResult<IList<GetShortInfoEventDto>>> GetTop10Events()
+    {
+        var events = await eventService.GetTop10EventsAsync();
+        return Ok(events.Select(x => x.ToGetShortInfoEventDto()).ToList());
+    }
 
     /// <summary>
     /// Создаёт событие из Json-объекта.

@@ -40,6 +40,14 @@ public class EventRepository(EventsDbContext appDbContext) : IEventRepository
         return await appDbContext.Events.FirstOrDefaultAsync(x => x.Id == id);
     }
 
+    public async Task<IList<Event>> GetTop10EventsAsync()
+    {
+        return await appDbContext.Events
+            .OrderByDescending(x => (x.TotalSeats - x.AvailableSeats) / x.TotalSeats)
+            .Take(10)
+            .ToListAsync();
+    }
+
     public async Task<Event> CreateEventAsync(Event eventToCreate)
     {
         await appDbContext.Events.AddAsync(eventToCreate);
