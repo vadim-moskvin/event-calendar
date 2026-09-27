@@ -17,9 +17,9 @@ public class RedisCacheService(IConnectionMultiplexer connection, ILogger<RedisC
 
             return !value.HasValue ? null : JsonSerializer.Deserialize<T>(value.ToString());
         }
-        catch (RedisConnectionException ex)
+        catch (RedisException ex)
         {
-            logger.LogError("Не удалось подключиться к Redis: {ExMessage}", ex.Message);
+            logger.LogError("Не удалось получить значение из Redis: {ExMessage}", ex.Message);
             return null;
         }
     }
@@ -31,9 +31,9 @@ public class RedisCacheService(IConnectionMultiplexer connection, ILogger<RedisC
             var json = JsonSerializer.Serialize(value);
             await _db.StringSetAsync(key, json, expiration);
         }
-        catch (RedisConnectionException ex)
+        catch (RedisException ex)
         {
-            logger.LogError("Не удалось подключиться к Redis: {ExMessage}", ex.Message);
+            logger.LogError("Не удалось добавить значение в Redis: {ExMessage}", ex.Message);
         }
     }
 
@@ -43,9 +43,9 @@ public class RedisCacheService(IConnectionMultiplexer connection, ILogger<RedisC
         {
             await _db.KeyDeleteAsync(key);
         }
-        catch (RedisConnectionException ex)
+        catch (RedisException ex)
         {
-            logger.LogError("Не удалось подключиться к Redis: {ExMessage}", ex.Message);
+            logger.LogError("Не удалось удалить значение из Redis: {ExMessage}", ex.Message);
         }
     }
 }

@@ -31,7 +31,7 @@ public class EventService(IEventRepository eventRepository, ICacheService cacheS
 
     public async Task<Event> GetEventAsync(Guid id)
     {
-        var cacheKey = $"event:{id}";
+        var cacheKey = Constants.EventCacheKey(id);
 
         var cached = await cacheService.Get<Event>(cacheKey);
 
@@ -56,7 +56,7 @@ public class EventService(IEventRepository eventRepository, ICacheService cacheS
 
     public async Task<IList<Event>> GetTop10EventsAsync()
     {
-        const string cacheKey = "events:top10";
+        const string cacheKey = Constants.Top10EventsCacheKey;
 
         var cached = await cacheService.Get<List<Event>>(cacheKey);
 
@@ -78,6 +78,9 @@ public class EventService(IEventRepository eventRepository, ICacheService cacheS
 
         entity.Update(@event.Title, @event.Description, @event.StartAt, @event.EndAt, @event.TotalSeats);
         await eventRepository.SaveChangesAsync();
+        
+        var cacheKey = Constants.EventCacheKey(@event.Id);
+        await cacheService.Remove(cacheKey);
     }
 
     public async Task RemoveEventAsync(Guid id)
@@ -86,5 +89,8 @@ public class EventService(IEventRepository eventRepository, ICacheService cacheS
             throw new NotFoundException(EventNotFoundException);
 
         await eventRepository.SaveChangesAsync();
+        
+        var cacheKey = Constants.EventCacheKey(id);
+        await cacheService.Remove(cacheKey);
     }
 }
