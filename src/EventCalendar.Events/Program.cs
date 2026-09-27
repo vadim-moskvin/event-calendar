@@ -19,6 +19,7 @@ jwtSettings.Validate();
 var cacheSettings = builder.Configuration.GetSection("CacheSettings").Get<CacheSettings>()
                   ?? throw new InvalidOperationException("CacheSettings не найдены в конфигурации.");
 cacheSettings.Validate();
+builder.Services.AddSingleton(cacheSettings);
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
                        ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
