@@ -80,6 +80,10 @@ builder.Services.AddOpenTelemetry()
         .AddRuntimeInstrumentation()
         .AddPrometheusExporter());
 
+builder.Host.UseSerilog((ctx, cfg) =>
+    cfg.ReadFrom.Configuration(ctx.Configuration)
+        .WriteTo.Console(new CompactJsonFormatter()));
+
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
