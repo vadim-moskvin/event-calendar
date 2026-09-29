@@ -22,6 +22,7 @@ builder.Services.AddSingleton<IOptions<TokenSettings>>(Options.Create(tokenSetti
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(connectionString);
 builder.Services.AddControllers();
+builder.Services.AddHealthChecks();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -43,6 +44,7 @@ app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
 app.UseSwagger();
 app.UseSwaggerUI();
 app.MapPrometheusScrapingEndpoint();
+app.MapHealthChecks("/health");
 app.MapControllers();
 
 app.Run();

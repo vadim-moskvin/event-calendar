@@ -21,7 +21,9 @@ public static class ObservabilityServiceCollectionExtensions
             .ConfigureResource(resource => resource.AddService(serviceName: serviceName, serviceVersion: serviceVersion))
             .WithTracing(tracing => tracing
                 .AddAspNetCoreInstrumentation(options =>
-                    options.Filter = context => !context.Request.Path.StartsWithSegments("/metrics"))
+                    options.Filter = context =>
+                        !context.Request.Path.StartsWithSegments("/metrics") &&
+                        !context.Request.Path.StartsWithSegments("/health"))
                 .AddHttpClientInstrumentation()
                 .AddEntityFrameworkCoreInstrumentation()
                 .AddOtlpExporter(options => options.Endpoint = new Uri(otlpEndpoint)))

@@ -101,6 +101,8 @@ docker compose -f src/docker-compose.yml ps
 
 API будут доступны на портах 5101 (Auth), 5102 (Events) и 5103 (Bookings), Jaeger — на 16686, Prometheus — на 9090. Dockerfile публикуют приложения в конфигурации `Release`, а контейнеры запускаются с `ASPNETCORE_ENVIRONMENT=Production`. Bookings ждёт, пока Events станет `healthy`. При этом Events не загружает события в Redis при старте: кэш заполняется при чтении событий.
 
+Docker проверяет каждый API через `/health`, поэтому healthcheck не зависит от Swagger. Этот базовый endpoint подтверждает, что приложение отвечает на запросы; отдельные проверки доступности PostgreSQL, Kafka и Redis в него не входят.
+
 ## Наблюдаемость
 
 API используют OpenTelemetry: трассировки отправляются по OTLP в Jaeger, а метрики ASP.NET Core и .NET доступны на `/metrics`. Prometheus опрашивает все три API каждые 15 секунд по настройкам из `src/telemetry/prometheus.yml`; Grafana показывает собранные метрики на дашборде из `src/telemetry/grafana/dashboard.json`.
