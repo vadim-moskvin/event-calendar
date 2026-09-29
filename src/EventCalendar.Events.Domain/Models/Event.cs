@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace EventCalendar.Events.Domain.Models;
 
@@ -34,6 +35,7 @@ public class Event
 
     public int TotalSeats { get; private set; }
 
+    [JsonInclude]
     public int AvailableSeats { get; private set; }
 
     public void Update(string title, string? description, DateTime startAt, DateTime endAt, int totalSeats)

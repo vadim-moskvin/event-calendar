@@ -3,7 +3,7 @@ using EventCalendar.Events.Application.Repositories;
 
 namespace EventCalendar.Events.Application.Services;
 
-public sealed class BookingConfirmationHandler(IEventRepository eventRepository) : IBookingConfirmationHandler
+public sealed class BookingConfirmationHandler(IEventRepository eventRepository, ICacheService cacheService) : IBookingConfirmationHandler
 {
     public async Task<BookingConfirmationResult> HandleAsync(
         BookingConfirmed message, CancellationToken cancellationToken = default)
@@ -20,6 +20,10 @@ public sealed class BookingConfirmationHandler(IEventRepository eventRepository)
             return BookingConfirmationResult.NoAvailableSeats;
 
         await eventRepository.SaveChangesAsync(cancellationToken);
+        
+        var cacheKey = Constants.EventCacheKey(message.EventId);
+        await cacheService.Remove(cacheKey);
+        
         return BookingConfirmationResult.Reserved;
     }
 }

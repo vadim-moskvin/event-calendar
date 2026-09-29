@@ -11,6 +11,19 @@ public static class Mapper
             result.TotalPages, result.TotalItems);
     }
 
+    public static GetShortInfoEventDto ToGetShortInfoEventDto(this Event @event)
+    {
+        return new GetShortInfoEventDto
+        {
+            Id = @event.Id,
+            Title = @event.Title,
+            Description = @event.Description,
+            StartAt = @event.StartAt,
+            EndAt = @event.EndAt,
+            TotalSeats = @event.TotalSeats
+        };
+    }
+
     public static GetEventDto ToGetEventDto(this Event @event)
     {
         return new GetEventDto
@@ -28,13 +41,12 @@ public static class Mapper
     public static Event ToEntity(this EventDto dto, Guid id)
     {
         return new Event(id, dto.Title, dto.StartAt, dto.EndAt, dto.TotalSeats)
-        { Description = dto.Description };
+            { Description = dto.Description };
     }
 
     public static Event ToEntity(this EventDto dto)
     {
         return new Event(Guid.NewGuid(), dto.Title, dto.StartAt, dto.EndAt, dto.TotalSeats)
-        { Description = dto.Description };
+            { Description = dto.Description };
     }
-
 }

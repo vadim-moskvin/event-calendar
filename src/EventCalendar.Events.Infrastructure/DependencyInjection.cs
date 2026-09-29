@@ -1,4 +1,5 @@
 using EventCalendar.Events.Application.Repositories;
+using EventCalendar.Events.Application.Services;
 using EventCalendar.Events.Infrastructure.DataAccess;
 using EventCalendar.Events.Infrastructure.Repositories;
 using EventCalendar.Events.Infrastructure.Services;
@@ -21,6 +22,7 @@ public static class DependencyInjection
         services.AddSingleton(kafkaSettings);
         services.AddHostedService<KafkaTopicInitializer>();
         services.AddHostedService<BookingConfirmedConsumer>();
+        services.AddSingleton<ICacheService, RedisCacheService>();
 
         return services;
     }

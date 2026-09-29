@@ -8,12 +8,18 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
+using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
 var jwtSettings = builder.Configuration.GetSection("TokenSettings").Get<JwtSettings>()
                   ?? throw new InvalidOperationException("TokenSettings не найдены в конфигурации.");
 jwtSettings.Validate();
+
+var cacheSettings = builder.Configuration.GetSection("CacheSettings").Get<CacheSettings>()
+                  ?? throw new InvalidOperationException("CacheSettings не найдены в конфигурации.");
+cacheSettings.Validate();
+builder.Services.AddSingleton(cacheSettings);
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
                        ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
@@ -42,6 +48,12 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 builder.Services.AddAuthorization();
+
+var redisConnectionString = builder.Configuration.GetConnectionString("Redis") ??
+                            throw new InvalidOperationException("Redis connection string not found.");
+builder.Services.AddSingleton<IConnectionMultiplexer>(
+    ConnectionMultiplexer.Connect(redisConnectionString)
+);
 
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(connectionString, kafkaSettings);

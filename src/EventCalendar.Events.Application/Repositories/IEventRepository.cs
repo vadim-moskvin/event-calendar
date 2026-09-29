@@ -7,6 +7,8 @@ public interface IEventRepository
     Task<PaginatedResult<Event>> GetEventsAsync(string? title, DateTime? from, DateTime? to, int page, int pageSize);
 
     Task<Event?> GetEventAsync(Guid id);
+    
+    Task<IList<Event>> GetTop10EventsAsync();
 
     Task<Event> CreateEventAsync(Event eventToCreate);
 

@@ -8,6 +8,7 @@ public interface IEventService
         int pageSize);
     Task<Event> GetEventAsync(Guid id);
     Task<bool> AddEventAsync(Event @event);
+    Task<IList<Event>> GetTop10EventsAsync();
     Task ChangeEventAsync(Event @event);
     Task RemoveEventAsync(Guid id);
 }

@@ -78,6 +78,63 @@ public class EventServiceTests : TestsBase
     }
 
     [Fact]
+    public async Task Get_top10_with_no_events()
+    {
+        // Arrange
+        // Репозиторий не содержит событий.
+
+        // Act
+        var events = await EventService.GetTop10EventsAsync();
+
+        // Assert
+        Assert.Empty(events);
+    }
+
+    [Fact]
+    public async Task Get_top10_with_fewer_than_ten_events()
+    {
+        // Arrange
+        var start = DateTime.UtcNow.AddDays(1);
+        var halfFull = new Event(Guid.NewGuid(), "Half full", start, start.AddHours(1), 10);
+        var lessFull = new Event(Guid.NewGuid(), "Less full", start, start.AddHours(1), 20);
+        var mostFull = new Event(Guid.NewGuid(), "Most full", start, start.AddHours(1), 10);
+        halfFull.TryReserveSeats(5);
+        lessFull.TryReserveSeats(2);
+        mostFull.TryReserveSeats(8);
+        await EventService.AddEventAsync(halfFull);
+        await EventService.AddEventAsync(lessFull);
+        await EventService.AddEventAsync(mostFull);
+
+        // Act
+        var events = await EventService.GetTop10EventsAsync();
+
+        // Assert
+        Assert.Equal(new[] { mostFull.Id, halfFull.Id, lessFull.Id }, events.Select(e => e.Id));
+    }
+
+    [Fact]
+    public async Task Get_top10_with_more_than_ten_events()
+    {
+        // Arrange
+        var start = DateTime.UtcNow.AddDays(1);
+        var allEvents = new List<Event>();
+        for (var reservedSeats = 0; reservedSeats < 12; reservedSeats++)
+        {
+            var @event = new Event(Guid.NewGuid(), $"Event {reservedSeats}", start, start.AddHours(1), 20);
+            if (reservedSeats > 0)
+                @event.TryReserveSeats(reservedSeats);
+            await EventService.AddEventAsync(@event);
+            allEvents.Add(@event);
+        }
+
+        // Act
+        var events = await EventService.GetTop10EventsAsync();
+
+        // Assert
+        Assert.Equal(allEvents.Skip(2).Reverse().Select(e => e.Id), events.Select(e => e.Id));
+    }
+
+    [Fact]
     public async Task Update_event()
     {
         // Arrange
