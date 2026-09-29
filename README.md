@@ -18,7 +18,7 @@
 | `EventCalendar.Events` | CRUD событий и учёт доступных мест | `http://localhost:5102` | `events` | `5434` |
 | `EventCalendar.Bookings` | Создание, просмотр и отмена броней | `http://localhost:5103` | `bookings` | `5435` |
 
-Базы и Kafka с ZooKeeper запускаются через `src/docker-compose.yml`. API-сервисы запускаются отдельно, например из Rider. Kafka доступна приложениям на хосте по адресу `localhost:9092`; для приложений внутри сети Docker используется `kafka:29092`. Строки подключения к БД и адрес брокера заданы в `appsettings.json` соответствующих сервисов и могут быть переопределены переменными среды. Миграции EF Core применяются при старте API.
+Все сервисы можно запустить через `src/docker-compose.yml`; API также можно запускать отдельно, например из Rider. Kafka доступна приложениям на хосте по адресу `localhost:9092`; для приложений внутри сети Docker используется `kafka:29092`. Строки подключения к БД и адрес брокера заданы в `appsettings.json` соответствующих сервисов и переопределяются переменными среды в Compose. Миграции EF Core применяются при старте API.
 
 ## Структура решения
 
@@ -89,14 +89,46 @@ dotnet ef migrations add <имя миграции> --project src/EventCalendar.E
 
 Издатель токена — `EventCalendar.Auth`; токен содержит аудитории `EventCalendar.Events` и `EventCalendar.Bookings`. Каждый API проверяет свою аудиторию, издателя, подпись и срок действия токена. `POST`, `PUT` и `DELETE /events` доступны только роли `Admin`; чтение событий открыто. Все эндпоинты Bookings требуют токен. Пользователь может читать и отменять свои брони, администратор — также чужие.
 
+## Запуск через Docker Compose
+
+Из корня репозитория задайте общий JWT-ключ длиной не менее 32 байт и запустите контейнеры:
+
+```powershell
+$env:TokenSettings__SecretKey = '<один и тот же ключ длиной не менее 32 байт>'
+docker compose -f src/docker-compose.yml up --build -d
+docker compose -f src/docker-compose.yml ps
+```
+
+API будут доступны на портах 5101 (Auth), 5102 (Events) и 5103 (Bookings), Jaeger — на 16686, Prometheus — на 9090. Dockerfile публикуют приложения в конфигурации `Release`, а контейнеры запускаются с `ASPNETCORE_ENVIRONMENT=Production`. Bookings ждёт, пока Events станет `healthy`. При этом Events не загружает события в Redis при старте: кэш заполняется при чтении событий.
+
+## Наблюдаемость
+
+API используют OpenTelemetry: трассировки отправляются по OTLP в Jaeger, а метрики ASP.NET Core и .NET доступны на `/metrics`. Prometheus опрашивает все три API каждые 15 секунд по настройкам из `src/prometheus.yml`; Grafana показывает собранные метрики на дашборде из `src/dashboard.json`.
+
+| Инструмент | Назначение | Адрес на хосте |
+| --- | --- | --- |
+| Grafana | Дашборд и графики метрик | `http://localhost:3000` |
+| Prometheus | Сбор метрик и проверка целей в **Status → Targets** | `http://localhost:9090` |
+| Jaeger | Просмотр трассировок | `http://localhost:16686` |
+
+Для запуска всего стека из корня репозитория задайте общий JWT-ключ и выполните:
+
+```powershell
+$env:TokenSettings__SecretKey = '<один и тот же ключ длиной не менее 32 байт>'
+docker compose -f src/docker-compose.yml up --build -d
+```
+
+В новой Grafana войдите под `admin` / `admin` и при необходимости смените пароль. Если контейнер уже запускался, действует ранее установленный пароль: данные Grafana сохраняются в томе. Добавьте источник данных **Prometheus** с URL `http://prometheus:9090` (это адрес внутри сети Docker) и импортируйте `src/dashboard.json`. Дашборд показывает скорость HTTP-запросов, количество запросов в обработке и задержку p50/p95/p99. Трассировки API можно искать в Jaeger по именам `auth-service`, `events-service` и `bookings-service`. Порт `4317` предназначен для приёма OTLP, это не UI.
+
 ## Локальный запуск
 
 Нужны .NET 10 SDK и Docker. Команды ниже выполняются из корня репозитория.
 
-1. Запустите инфраструктуру и дождитесь статуса `healthy`:
+1. Задайте `TokenSettings__SecretKey` и запустите только инфраструктуру:
 
    ```powershell
-   docker compose -f src/docker-compose.yml up -d
+   $env:TokenSettings__SecretKey = '<один и тот же ключ длиной не менее 32 байт>'
+   docker compose -f src/docker-compose.yml up -d zookeeper kafka redis prometheus jaeger grafana users-db events-db bookings-db
    docker compose -f src/docker-compose.yml ps
    ```
 
