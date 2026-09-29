@@ -8,6 +8,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,7 +20,7 @@ var jwtSettings = builder.Configuration.GetSection("TokenSettings").Get<JwtSetti
 jwtSettings.Validate();
 
 var cacheSettings = builder.Configuration.GetSection("CacheSettings").Get<CacheSettings>()
-                  ?? throw new InvalidOperationException("CacheSettings не найдены в конфигурации.");
+                    ?? throw new InvalidOperationException("CacheSettings не найдены в конфигурации.");
 cacheSettings.Validate();
 builder.Services.AddSingleton(cacheSettings);
 
@@ -73,6 +76,18 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
+builder.Services.AddOpenTelemetry()
+    .ConfigureResource(r => r.AddService(serviceName: "events-service"))
+    .WithTracing(tracing => tracing
+        .AddAspNetCoreInstrumentation()
+        .AddHttpClientInstrumentation()
+        .AddEntityFrameworkCoreInstrumentation()
+        .AddOtlpExporter())
+    .WithMetrics(metrics => metrics
+        .AddAspNetCoreInstrumentation()
+        .AddRuntimeInstrumentation()
+        .AddPrometheusExporter());
+
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
@@ -81,6 +96,7 @@ using (var scope = app.Services.CreateScope())
     db.Database.Migrate();
 }
 
+app.MapPrometheusScrapingEndpoint();
 app.UseSwagger();
 app.UseSwaggerUI();
 app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
