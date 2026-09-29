@@ -2,11 +2,10 @@ using EventCalendar.Auth.Application;
 using EventCalendar.Auth.Infrastructure;
 using EventCalendar.Auth.Infrastructure.DataAccess;
 using EventCalendar.Auth.Middlewares;
+using EventCalendar.Observability;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using OpenTelemetry.Metrics;
-using OpenTelemetry.Resources;
-using OpenTelemetry.Trace;
 using Serilog;
 using Serilog.Formatting.Compact;
 
@@ -26,23 +25,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-var serviceName = builder.Configuration["ServiceName"]
-                  ?? throw new InvalidOperationException("ServiceName not found.");
-var otlpEndpoint = builder.Configuration["Otlp:Endpoint"]
-                   ?? throw new InvalidOperationException("Otlp:Endpoint not found.");
-
-builder.Services.AddOpenTelemetry()
-    .ConfigureResource(r => r.AddService(serviceName))
-    .WithTracing(tracing => tracing
-        .AddAspNetCoreInstrumentation(options =>
-            options.Filter = context => !context.Request.Path.StartsWithSegments("/metrics"))
-        .AddHttpClientInstrumentation()
-        .AddEntityFrameworkCoreInstrumentation()
-        .AddOtlpExporter(options => options.Endpoint = new Uri(otlpEndpoint)))
-    .WithMetrics(metrics => metrics
-        .AddAspNetCoreInstrumentation()
-        .AddRuntimeInstrumentation()
-        .AddPrometheusExporter());
+builder.Services.AddObservability(builder.Configuration);
 
 builder.Host.UseSerilog((ctx, cfg) =>
     cfg.ReadFrom.Configuration(ctx.Configuration)

@@ -38,6 +38,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventCalendar.Bookings.Inte
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventCalendar.Contracts", "EventCalendar.Contracts\EventCalendar.Contracts.csproj", "{D3119954-487F-4BE1-ACAA-79A4C6AA5405}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventCalendar.Observability", "EventCalendar.Observability\EventCalendar.Observability.csproj", "{1D43B73B-332C-43D4-9DEA-1EB892DB5890}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -120,6 +122,10 @@ Global
 		{D3119954-487F-4BE1-ACAA-79A4C6AA5405}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D3119954-487F-4BE1-ACAA-79A4C6AA5405}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D3119954-487F-4BE1-ACAA-79A4C6AA5405}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1D43B73B-332C-43D4-9DEA-1EB892DB5890}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1D43B73B-332C-43D4-9DEA-1EB892DB5890}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1D43B73B-332C-43D4-9DEA-1EB892DB5890}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1D43B73B-332C-43D4-9DEA-1EB892DB5890}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
