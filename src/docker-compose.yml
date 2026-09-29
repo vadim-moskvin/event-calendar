@@ -15,6 +15,7 @@ services:
   kafka:
     image: confluentinc/cp-kafka:7.6.1
     container_name: eventapi-kafka
+    restart: on-failure
     depends_on:
       zookeeper:
         condition: service_healthy
@@ -36,7 +37,7 @@ services:
       interval: 10s
       timeout: 10s
       retries: 15
-      
+
   redis:
     image: redis:7.2-alpine
     container_name: eventapi-redis
@@ -47,6 +48,36 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+
+  prometheus:
+    image: prom/prometheus:v2.51.0
+    container_name: eventapi-prometheus
+    volumes:
+      - ./telemetry/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9090:9090"
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.56
+    container_name: eventapi-jaeger
+    ports:
+      - "16686:16686"   # UI
+      - "4317:4317"     # OTLP gRPC
+    environment:
+      COLLECTOR_OTLP_ENABLED: "true"
+
+  grafana:
+    image: grafana/grafana:10.4.2
+    container_name: eventapi-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./telemetry/grafana/provisioning/datasources/datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml:ro
+      - ./telemetry/grafana/provisioning/dashboards/dashboards.yml:/etc/grafana/provisioning/dashboards/dashboards.yml:ro
+      - ./telemetry/grafana/dashboard.json:/etc/grafana/dashboards/event-calendar.json:ro
 
   # ─────────────────────────── Базы данных (по одной на сервис) ───────────────────────────
   users-db:
@@ -99,7 +130,86 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+
+  auth-service:
+    build:
+      context: .
+      dockerfile: EventCalendar.Auth/Dockerfile
+    ports:
+      - "5101:8080"
+    environment:
+      ASPNETCORE_HTTP_PORTS: 8080
+      ASPNETCORE_ENVIRONMENT: Production
+      TokenSettings__SecretKey: ${TokenSettings__SecretKey:?Set TokenSettings__SecretKey to a shared key of at least 32 UTF-8 bytes}
+      ConnectionStrings__DefaultConnection: Host=users-db;Port=5432;Database=users;Username=postgres;Password=postgres
+      Otlp__Endpoint: http://jaeger:4317
+    depends_on:
+      users-db:
+        condition: service_healthy
+      jaeger:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  events-service:
+    build:
+      context: .
+      dockerfile: EventCalendar.Events/Dockerfile
+    ports:
+      - "5102:8080"
+    environment:
+      ASPNETCORE_HTTP_PORTS: 8080
+      ASPNETCORE_ENVIRONMENT: Production
+      TokenSettings__SecretKey: ${TokenSettings__SecretKey:?Set TokenSettings__SecretKey to a shared key of at least 32 UTF-8 bytes}
+      ConnectionStrings__DefaultConnection: Host=events-db;Port=5432;Database=events;Username=postgres;Password=postgres
+      ConnectionStrings__Redis: redis:6379
+      Kafka__BootstrapServers: kafka:29092
+      Otlp__Endpoint: http://jaeger:4317
+    depends_on:
+      events-db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      jaeger:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  bookings-service:
+    build:
+      context: .
+      dockerfile: EventCalendar.Bookings/Dockerfile
+    ports:
+      - "5103:8080"
+    environment:
+      ASPNETCORE_HTTP_PORTS: 8080
+      ASPNETCORE_ENVIRONMENT: Production
+      TokenSettings__SecretKey: ${TokenSettings__SecretKey:?Set TokenSettings__SecretKey to a shared key of at least 32 UTF-8 bytes}
+      ConnectionStrings__DefaultConnection: Host=bookings-db;Port=5432;Database=bookings;Username=postgres;Password=postgres
+      Kafka__BootstrapServers: kafka:29092
+      Otlp__Endpoint: http://jaeger:4317
+    depends_on:
+      bookings-db:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      events-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
 volumes:
   users-db-data:
   events-db-data:
   bookings-db-data:
+  grafana-data:

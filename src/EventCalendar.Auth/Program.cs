@@ -2,8 +2,12 @@ using EventCalendar.Auth.Application;
 using EventCalendar.Auth.Infrastructure;
 using EventCalendar.Auth.Infrastructure.DataAccess;
 using EventCalendar.Auth.Middlewares;
+using EventCalendar.Observability;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using OpenTelemetry.Metrics;
+using Serilog;
+using Serilog.Formatting.Compact;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,8 +22,15 @@ builder.Services.AddSingleton<IOptions<TokenSettings>>(Options.Create(tokenSetti
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(connectionString);
 builder.Services.AddControllers();
+builder.Services.AddHealthChecks();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddObservability(builder.Configuration);
+
+builder.Host.UseSerilog((ctx, cfg) =>
+    cfg.ReadFrom.Configuration(ctx.Configuration)
+        .WriteTo.Console(new CompactJsonFormatter()));
 
 var app = builder.Build();
 
@@ -29,9 +40,11 @@ using (var scope = app.Services.CreateScope())
     db.Database.Migrate();
 }
 
+app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
 app.UseSwagger();
 app.UseSwaggerUI();
-app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
+app.MapPrometheusScrapingEndpoint();
+app.MapHealthChecks("/health");
 app.MapControllers();
 
 app.Run();

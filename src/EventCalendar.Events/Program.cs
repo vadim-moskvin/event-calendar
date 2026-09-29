@@ -4,10 +4,14 @@ using EventCalendar.Events.Application;
 using EventCalendar.Events.Infrastructure;
 using EventCalendar.Events.Infrastructure.DataAccess;
 using EventCalendar.Events.Middlewares;
+using EventCalendar.Observability;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
+using OpenTelemetry.Metrics;
+using Serilog;
+using Serilog.Formatting.Compact;
 using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,7 +21,7 @@ var jwtSettings = builder.Configuration.GetSection("TokenSettings").Get<JwtSetti
 jwtSettings.Validate();
 
 var cacheSettings = builder.Configuration.GetSection("CacheSettings").Get<CacheSettings>()
-                  ?? throw new InvalidOperationException("CacheSettings не найдены в конфигурации.");
+                    ?? throw new InvalidOperationException("CacheSettings не найдены в конфигурации.");
 cacheSettings.Validate();
 builder.Services.AddSingleton(cacheSettings);
 
@@ -58,6 +62,7 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(connectionString, kafkaSettings);
 builder.Services.AddControllers();
+builder.Services.AddHealthChecks();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -73,6 +78,12 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
+builder.Services.AddObservability(builder.Configuration);
+
+builder.Host.UseSerilog((ctx, cfg) =>
+    cfg.ReadFrom.Configuration(ctx.Configuration)
+        .WriteTo.Console(new CompactJsonFormatter()));
+
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
@@ -81,9 +92,11 @@ using (var scope = app.Services.CreateScope())
     db.Database.Migrate();
 }
 
+app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
 app.UseSwagger();
 app.UseSwaggerUI();
-app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
+app.MapPrometheusScrapingEndpoint();
+app.MapHealthChecks("/health");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

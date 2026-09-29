@@ -1,0 +1,13 @@
+apiVersion: 1
+
+providers:
+  - name: Event Calendar
+    orgId: 1
+    folder: Event Calendar
+    folderUid: event-calendar
+    type: file
+    disableDeletion: true
+    updateIntervalSeconds: 30
+    allowUiUpdates: true
+    options:
+      path: /etc/grafana/dashboards
