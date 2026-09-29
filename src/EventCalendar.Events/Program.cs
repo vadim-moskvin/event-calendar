@@ -78,13 +78,18 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
+var serviceName = builder.Configuration["ServiceName"]
+                  ?? throw new InvalidOperationException("ServiceName not found.");
+var otlpEndpoint = builder.Configuration["Otlp:Endpoint"]
+                   ?? throw new InvalidOperationException("Otlp:Endpoint not found.");
+
 builder.Services.AddOpenTelemetry()
-    .ConfigureResource(r => r.AddService(serviceName: "events-service"))
+    .ConfigureResource(r => r.AddService(serviceName))
     .WithTracing(tracing => tracing
         .AddAspNetCoreInstrumentation()
         .AddHttpClientInstrumentation()
         .AddEntityFrameworkCoreInstrumentation()
-        .AddOtlpExporter())
+        .AddOtlpExporter(options => options.Endpoint = new Uri(otlpEndpoint)))
     .WithMetrics(metrics => metrics
         .AddAspNetCoreInstrumentation()
         .AddRuntimeInstrumentation()

@@ -63,21 +63,22 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
+var serviceName = builder.Configuration["ServiceName"]
+                  ?? throw new InvalidOperationException("ServiceName not found.");
+var otlpEndpoint = builder.Configuration["Otlp:Endpoint"]
+                   ?? throw new InvalidOperationException("Otlp:Endpoint not found.");
+
 builder.Services.AddOpenTelemetry()
-    .ConfigureResource(r => r.AddService(serviceName: "bookings-service"))
+    .ConfigureResource(r => r.AddService(serviceName))
     .WithTracing(tracing => tracing
         .AddAspNetCoreInstrumentation()
         .AddHttpClientInstrumentation()
         .AddEntityFrameworkCoreInstrumentation()
-        .AddOtlpExporter())
+        .AddOtlpExporter(options => options.Endpoint = new Uri(otlpEndpoint)))
     .WithMetrics(metrics => metrics
         .AddAspNetCoreInstrumentation()
         .AddRuntimeInstrumentation()
         .AddPrometheusExporter());
-
-builder.Host.UseSerilog((ctx, cfg) =>
-    cfg.ReadFrom.Configuration(ctx.Configuration)
-        .WriteTo.Console(new CompactJsonFormatter()));
 
 var app = builder.Build();
 
