@@ -12,11 +12,13 @@ public static class ObservabilityServiceCollectionExtensions
     {
         var serviceName = configuration["ServiceName"]
                           ?? throw new InvalidOperationException("ServiceName not found.");
+        var serviceVersion = configuration["ServiceVersion"]
+                             ?? throw new InvalidOperationException("ServiceVersion not found.");
         var otlpEndpoint = configuration["Otlp:Endpoint"]
                            ?? throw new InvalidOperationException("Otlp:Endpoint not found.");
 
         services.AddOpenTelemetry()
-            .ConfigureResource(resource => resource.AddService(serviceName))
+            .ConfigureResource(resource => resource.AddService(serviceName: serviceName, serviceVersion: serviceVersion))
             .WithTracing(tracing => tracing
                 .AddAspNetCoreInstrumentation(options =>
                     options.Filter = context => !context.Request.Path.StartsWithSegments("/metrics"))

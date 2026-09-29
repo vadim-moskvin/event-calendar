@@ -105,6 +105,8 @@ API будут доступны на портах 5101 (Auth), 5102 (Events) и 
 
 API используют OpenTelemetry: трассировки отправляются по OTLP в Jaeger, а метрики ASP.NET Core и .NET доступны на `/metrics`. Prometheus опрашивает все три API каждые 15 секунд по настройкам из `src/prometheus.yml`; Grafana показывает собранные метрики на дашборде из `src/dashboard.json`.
 
+`ServiceVersion` задаётся для каждого API в его `appsettings.json` (сейчас `1.0.0`). При выпуске новой версии обновите значение нужного сервиса или передайте переменную окружения `ServiceVersion`; OpenTelemetry добавит его как атрибут ресурса `service.version`.
+
 | Инструмент | Назначение | Адрес на хосте |
 | --- | --- | --- |
 | Grafana | Дашборд и графики метрик | `http://localhost:3000` |

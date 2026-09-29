@@ -76,10 +76,10 @@ using (var scope = app.Services.CreateScope())
     db.Database.Migrate();
 }
 
-app.MapPrometheusScrapingEndpoint();
+app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
 app.UseSwagger();
 app.UseSwaggerUI();
-app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
+app.MapPrometheusScrapingEndpoint();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
