@@ -103,7 +103,7 @@ API будут доступны на портах 5101 (Auth), 5102 (Events) и 
 
 ## Наблюдаемость
 
-API используют OpenTelemetry: трассировки отправляются по OTLP в Jaeger, а метрики ASP.NET Core и .NET доступны на `/metrics`. Prometheus опрашивает все три API каждые 15 секунд по настройкам из `src/prometheus.yml`; Grafana показывает собранные метрики на дашборде из `src/dashboard.json`.
+API используют OpenTelemetry: трассировки отправляются по OTLP в Jaeger, а метрики ASP.NET Core и .NET доступны на `/metrics`. Prometheus опрашивает все три API каждые 15 секунд по настройкам из `src/telemetry/prometheus.yml`; Grafana показывает собранные метрики на дашборде из `src/telemetry/grafana/dashboard.json`.
 
 `ServiceVersion` задаётся для каждого API в его `appsettings.json` (сейчас `1.0.0`). При выпуске новой версии обновите значение нужного сервиса или передайте переменную окружения `ServiceVersion`; OpenTelemetry добавит его как атрибут ресурса `service.version`.
 
@@ -120,7 +120,7 @@ $env:TokenSettings__SecretKey = '<один и тот же ключ длиной 
 docker compose -f src/docker-compose.yml up --build -d
 ```
 
-В новой Grafana войдите под `admin` / `admin` и при необходимости смените пароль. Если контейнер уже запускался, действует ранее установленный пароль: данные Grafana сохраняются в томе. Источник данных **Event Calendar Prometheus** (`http://prometheus:9090` внутри сети Docker) и дашборд **Event Calendar HTTP metrics** в папке **Event Calendar** создаются автоматически из файлов в `src/grafana/provisioning` и `src/dashboard.json`. Ручное добавление источника и импорт дашборда не требуются. Дашборд показывает скорость HTTP-запросов, количество запросов в обработке, задержку p50/p95/p99 и долю ответов 5xx (error rate). Изменения дашборда, сохранённые через UI Grafana, нужно экспортировать обратно в `src/dashboard.json`: при обновлении файла версия из репозитория заменит изменения из UI. Трассировки API можно искать в Jaeger по именам `auth-service`, `events-service` и `bookings-service`. Порт `4317` предназначен для приёма OTLP, это не UI.
+В новой Grafana войдите под `admin` / `admin` и при необходимости смените пароль. Если контейнер уже запускался, действует ранее установленный пароль: данные Grafana сохраняются в томе. Источник данных **Event Calendar Prometheus** (`http://prometheus:9090` внутри сети Docker) и дашборд **Event Calendar HTTP metrics** в папке **Event Calendar** создаются автоматически из файлов в `src/telemetry/grafana/provisioning` и `src/telemetry/grafana/dashboard.json`. Ручное добавление источника и импорт дашборда не требуются. Дашборд показывает скорость HTTP-запросов, количество запросов в обработке, задержку p50/p95/p99 и долю ответов 5xx (error rate). Изменения дашборда, сохранённые через UI Grafana, нужно экспортировать обратно в `src/telemetry/grafana/dashboard.json`: при обновлении файла версия из репозитория заменит изменения из UI. Трассировки API можно искать в Jaeger по именам `auth-service`, `events-service` и `bookings-service`. Порт `4317` предназначен для приёма OTLP, это не UI.
 
 Две дополнительные панели показывают частоту сборок GC по поколениям и состояние пула потоков (очередь задач и число потоков) для выбранного сервиса.
 

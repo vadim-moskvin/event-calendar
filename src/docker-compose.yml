@@ -53,7 +53,7 @@ services:
     image: prom/prometheus:v2.51.0
     container_name: eventapi-prometheus
     volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./telemetry/prometheus.yml:/etc/prometheus/prometheus.yml:ro
     ports:
       - "9090:9090"
 
@@ -75,9 +75,9 @@ services:
       GF_SECURITY_ADMIN_PASSWORD: admin
     volumes:
       - grafana-data:/var/lib/grafana
-      - ./grafana/provisioning/datasources/datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml:ro
-      - ./grafana/provisioning/dashboards/dashboards.yml:/etc/grafana/provisioning/dashboards/dashboards.yml:ro
-      - ./dashboard.json:/etc/grafana/dashboards/event-calendar.json:ro
+      - ./telemetry/grafana/provisioning/datasources/datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml:ro
+      - ./telemetry/grafana/provisioning/dashboards/dashboards.yml:/etc/grafana/provisioning/dashboards/dashboards.yml:ro
+      - ./telemetry/grafana/dashboard.json:/etc/grafana/dashboards/event-calendar.json:ro
 
   # ─────────────────────────── Базы данных (по одной на сервис) ───────────────────────────
   users-db:
