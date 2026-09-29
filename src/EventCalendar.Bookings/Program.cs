@@ -71,7 +71,8 @@ var otlpEndpoint = builder.Configuration["Otlp:Endpoint"]
 builder.Services.AddOpenTelemetry()
     .ConfigureResource(r => r.AddService(serviceName))
     .WithTracing(tracing => tracing
-        .AddAspNetCoreInstrumentation()
+        .AddAspNetCoreInstrumentation(options =>
+            options.Filter = context => !context.Request.Path.StartsWithSegments("/metrics"))
         .AddHttpClientInstrumentation()
         .AddEntityFrameworkCoreInstrumentation()
         .AddOtlpExporter(options => options.Endpoint = new Uri(otlpEndpoint)))
