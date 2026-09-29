@@ -388,6 +388,130 @@
       ],
       "title": "API error rate (5xx)",
       "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "event-calendar-prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "lineWidth": 1,
+            "showPoints": "auto"
+          },
+          "min": 0,
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 24
+      },
+      "id": 7,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "event-calendar-prometheus"
+          },
+          "editorMode": "code",
+          "expr": "sum by (gc_heap_generation) (rate(dotnet_gc_collections_total{job=\"$service\"}[$__rate_interval]))",
+          "instant": false,
+          "legendFormat": "{{gc_heap_generation}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "GC collections/s by generation",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "event-calendar-prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "lineWidth": 1,
+            "showPoints": "auto"
+          },
+          "min": 0,
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 24
+      },
+      "id": 8,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "event-calendar-prometheus"
+          },
+          "editorMode": "code",
+          "expr": "sum(dotnet_thread_pool_queue_length_total{job=\"$service\"})",
+          "instant": false,
+          "legendFormat": "Queued work items",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "event-calendar-prometheus"
+          },
+          "editorMode": "code",
+          "expr": "sum(dotnet_thread_pool_thread_count_total{job=\"$service\"})",
+          "instant": false,
+          "legendFormat": "Threads",
+          "range": true,
+          "refId": "B"
+        }
+      ],
+      "title": "Thread pool",
+      "type": "timeseries"
     }
   ],
   "refresh": "15s",
